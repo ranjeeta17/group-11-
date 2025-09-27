@@ -1,0 +1,3 @@
+module.exports = {
+  ADMIN_EMAIL: 'admin@example.com',
+};
