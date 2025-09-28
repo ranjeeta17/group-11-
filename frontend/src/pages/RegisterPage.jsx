@@ -53,11 +53,16 @@ const RegisterPage = () => {
     setKeyError('');
 
     try {
-      await validateAdminKey(adminKey.trim());
-      setStep(2); // Move to registration form
+      const isValid = await validateAdminKey(adminKey.trim());
+      if (isValid) {
+        setStep(2); // Move to registration form
+      } else {
+        setKeyError('Invalid admin access key');
+      }
     } catch (err) {
-      setKeyError(err.response?.data?.message || 'Invalid admin access key');
-    } finally {
+      setKeyError('Server error. Please try again.');
+    }
+    finally {
       setKeyLoading(false);
     }
   };
@@ -176,7 +181,7 @@ const RegisterPage = () => {
 
     try {
       const registrationData = {
-        adminKey,
+
         name: formData.name.trim(),
         email: formData.email.toLowerCase().trim(),
         password: formData.password,

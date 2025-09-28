@@ -14,7 +14,7 @@ const app = express();
 // --- Middleware ---
 app.use(cors({
   origin: "http://localhost:3000",   // React app
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
@@ -34,6 +34,27 @@ app.use((req, res, next) => {
   next();
 });
 
+// JWT Auth middleware
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ success: false, message: 'Access token is required' });
+
+  jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err, user) => {
+    if (err) return res.status(403).json({ success: false, message: 'Invalid or expired token' });
+    req.user = user;
+    next();
+  });
+};
+
+// Admin check middleware
+const requireAdmin = (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Admin access required' });
+  }
+  next();
+};
+
 // --- Routes ---
 // Test route
 app.get('/api/auth/test', (req, res) => {
@@ -43,8 +64,9 @@ app.get('/api/auth/test', (req, res) => {
 // Register route
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { email, password, name, role = 'employee', department, employeeId } = req.body;
-
+    const { email, password, name, role, department, employeeId } = req.body;
+    console.log("this is the data", req.body);
+    
     if (!email || !password || !name || !department || !employeeId) {
       return res.status(400).json({
         success: false,
@@ -65,7 +87,7 @@ app.post('/api/auth/register', async (req, res) => {
       email,
       password, // password will be hashed by pre-save hook
       name,
-      role,
+      role: role || 'employee',
       department,
       employeeId
     });
@@ -113,6 +135,11 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
+    // Check if user is active
+    if (!user.isActive) {
+      return res.status(401).json({ success: false, message: 'Account is deactivated. Please contact administrator.' });
+    }
+
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -134,7 +161,8 @@ app.post('/api/auth/login', async (req, res) => {
         name: user.name,
         role: user.role,
         department: user.department,
-        employeeId: user.employeeId
+        employeeId: user.employeeId,
+        isActive: user.isActive
       }
     });
 
@@ -144,32 +172,33 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// Admin key validation
 app.post('/api/auth/validate-admin-key', (req, res) => {
-  const { key } = req.body;
+  try {
+    console.log('Raw request body:', req.body);
+    console.log('Request headers:', req.headers);
+    
+    const { adminKey } = req.body;
+    console.log('Extracted adminKey:', adminKey);
 
-  if (!key) {
-    return res.status(400).json({ success: false, message: 'Admin key is required' });
+    if (!adminKey) {
+      console.log('No adminKey found in request');
+      return res.status(400).json({ success: false, message: 'Admin key is required' });
+    }
+
+    const validAdminKey = process.env.ADMIN_KEY || 'ADMIN-SECRET-2024';
+    console.log('Valid key should be:', validAdminKey);
+    
+    if (adminKey === validAdminKey) {
+      return res.json({ success: true, message: 'Valid admin key' });
+    }
+
+    return res.status(400).json({ success: false, message: 'Invalid admin access key' });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
-
-  if (key === process.env.ADMIN_KEY) {
-    return res.json({ success: true, message: 'Valid admin key' });
-  }
-
-  return res.status(400).json({ success: false, message: 'Invalid admin access key' });
 });
-
-// JWT Auth middleware
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.status(401).json({ success: false, message: 'Access token is required' });
-
-  jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err, user) => {
-    if (err) return res.status(403).json({ success: false, message: 'Invalid or expired token' });
-    req.user = user;
-    next();
-  });
-};
 
 // Protected profile route
 app.get('/api/auth/profile', authenticateToken, async (req, res) => {
@@ -180,6 +209,203 @@ app.get('/api/auth/profile', authenticateToken, async (req, res) => {
     res.json({ success: true, user });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// --- EMPLOYEE MANAGEMENT ROUTES ---
+
+// Get all employees with filters
+app.get('/api/auth/employees', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { department, role, isActive } = req.query;
+    
+    // Build filter object
+    const filter = {};
+    if (department && department !== '') filter.department = department;
+    if (role && role !== '') filter.role = role;
+    if (isActive !== '' && isActive !== undefined) filter.isActive = isActive === 'true';
+
+    const employees = await User.find(filter)
+      .select('-password')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      employees
+    });
+
+  } catch (error) {
+    console.error('Error fetching employees:', error);
+    res.status(500).json({ success: false, message: 'Server error while fetching employees' });
+  }
+});
+
+// Add new employee
+app.post('/api/auth/employees', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { email, password, name, role, department, employeeId } = req.body;
+    
+    if (!email || !password || !name || !department || !employeeId) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields (name, email, password, department, employeeId) are required'
+      });
+    }
+
+    // Check if user exists
+    const existingUser = await User.findOne({ $or: [{ email }, { employeeId }] });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'Employee already exists with this email or employee ID'
+      });
+    }
+
+    const employee = new User({
+      email,
+      password, // Will be hashed by pre-save hook
+      name,
+      role: role || 'employee',
+      department,
+      employeeId,
+      isActive: true
+    });
+
+    await employee.save();
+
+    // Return employee data without password
+    const employeeData = await User.findById(employee._id).select('-password');
+
+    res.status(201).json({
+      success: true,
+      message: 'Employee added successfully',
+      employee: employeeData
+    });
+
+  } catch (error) {
+    console.error('Error adding employee:', error);
+    res.status(500).json({ success: false, message: 'Server error while adding employee' });
+  }
+});
+
+// Update employee
+app.put('/api/auth/employees/:id', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email, password, name, role, department, employeeId } = req.body;
+
+    if (!email || !name || !department || !employeeId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name, email, department, and employee ID are required'
+      });
+    }
+
+    // Check if email or employeeId conflicts with other users
+    const existingUser = await User.findOne({ 
+      $and: [
+        { _id: { $ne: id } },
+        { $or: [{ email }, { employeeId }] }
+      ]
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'Another employee already exists with this email or employee ID'
+      });
+    }
+
+    const updateData = {
+      email,
+      name,
+      role: role || 'employee',
+      department,
+      employeeId
+    };
+
+    // Only update password if provided
+    if (password && password.trim() !== '') {
+      updateData.password = password;
+    }
+
+    const employee = await User.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!employee) {
+      return res.status(404).json({ success: false, message: 'Employee not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Employee updated successfully',
+      employee
+    });
+
+  } catch (error) {
+    console.error('Error updating employee:', error);
+    res.status(500).json({ success: false, message: 'Server error while updating employee' });
+  }
+});
+
+// Toggle employee status (activate/deactivate)
+app.patch('/api/auth/employees/:id/toggle-status', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    const employee = await User.findByIdAndUpdate(
+      id,
+      { isActive },
+      { new: true }
+    ).select('-password');
+
+    if (!employee) {
+      return res.status(404).json({ success: false, message: 'Employee not found' });
+    }
+
+    res.json({
+      success: true,
+      message: `Employee ${isActive ? 'activated' : 'deactivated'} successfully`,
+      employee
+    });
+
+  } catch (error) {
+    console.error('Error toggling employee status:', error);
+    res.status(500).json({ success: false, message: 'Server error while updating employee status' });
+  }
+});
+
+// Delete employee
+app.delete('/api/auth/employees/:id', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Prevent admin from deleting themselves
+    if (id === req.user.userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'You cannot delete your own account'
+      });
+    }
+
+    const employee = await User.findByIdAndDelete(id);
+
+    if (!employee) {
+      return res.status(404).json({ success: false, message: 'Employee not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Employee deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error deleting employee:', error);
+    res.status(500).json({ success: false, message: 'Server error while deleting employee' });
   }
 });
 
@@ -215,7 +441,8 @@ async function createDefaultUsers() {
         name: 'System Admin',
         role: 'admin',
         department: 'IT',
-        employeeId: 'A0001'
+        employeeId: 'A0001',
+        isActive: true
       });
       await admin.save();
       console.log('🔧 Default admin created: admin@company.com / admin123');
@@ -229,7 +456,8 @@ async function createDefaultUsers() {
         name: 'Default Employee',
         role: 'employee',
         department: 'HR',
-        employeeId: 'E0001'
+        employeeId: 'E0001',
+        isActive: true
       });
       await employee.save();
       console.log('🔧 Default employee created: employee@company.com / emp123');
