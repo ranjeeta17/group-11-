@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import axiosInstance from '../axiosConfig';
-import { useAuth } from '../context/AuthContext';
-import { ADMIN_EMAIL } from '../config/admin';
+import axiosInstance from '../../axiosConfig';
+import { useAuth } from '../../context/AuthContext';
+import { ADMIN_EMAIL } from '../../config/admin';
 
 export default function AdminUsers() {
   const { user } = useAuth();

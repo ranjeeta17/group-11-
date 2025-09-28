@@ -3,12 +3,12 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 // Import all management components
-import LeaveManagement from '../components/LeaveManagement';
-import EmployeeManagement from '../components/EmployeeManagement';
-import ShiftManagement from '../components/ShiftManagement';
-import OvertimeTracking from '../components/OvertimeTracking';
-import AnalyticsReports from '../components/AnalyticsReports';
-import SystemSettings from '../components/SystemSettings';
+import LeaveManagement from '../components/admin/LeaveManagement';
+import EmployeeManagement from '../components/admin/EmployeeManagement';
+import ShiftManagement from '../components/admin/ShiftManagement';
+import OvertimeTracking from '../components/admin/OvertimeTracking';
+import AnalyticsReports from '../components/admin/AnalyticsReports';
+import SystemSettings from '../components/admin/SystemSettings';
 
 const AdminDashboardPage = () => {
   const { user, logout } = useAuth();

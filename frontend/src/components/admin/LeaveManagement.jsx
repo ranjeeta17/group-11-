@@ -1,7 +1,7 @@
 // components/admin/LeaveManagement.jsx
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import axiosInstance from '../axiosConfig';
+import { useAuth } from '../../context/AuthContext';
+import axiosInstance from '../../axiosConfig';
 
 const LeaveManagement = ({ onBack }) => {
   const { user } = useAuth();
