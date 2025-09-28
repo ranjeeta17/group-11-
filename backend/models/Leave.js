@@ -1,3 +1,4 @@
+// models/Leave.js
 const mongoose = require('mongoose');
 
 const leaveSchema = new mongoose.Schema({
@@ -33,63 +34,78 @@ const leaveSchema = new mongoose.Schema({
   },
   totalDays: {
     type: Number,
-    required: true,
-    min: 1
+    required: true
   },
   reason: {
     type: String,
     required: true,
-    trim: true
+    maxlength: 500
   },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected', 'cancelled'],
     default: 'pending'
   },
-  approvedBy: {
+  rejectionReason: {
+    type: String,
+    maxlength: 500
+  },
+  reviewedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
-  approvedAt: {
+  reviewedAt: {
     type: Date
   },
-  rejectionReason: {
-    type: String,
-    trim: true
-  },
-  documents: [{
-    name: String,
-    url: String,
-    uploadedAt: {
+  attachments: [{
+    filename: String,
+    originalName: String,
+    mimetype: String,
+    size: Number,
+    uploadDate: {
       type: Date,
       default: Date.now
     }
-  }],
-  emergencyContact: {
-    name: String,
-    phone: String,
-    relationship: String
-  },
-  coveringEmployee: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  coveringEmployeeName: String,
-  handoverNotes: {
-    type: String,
-    trim: true
-  }
+  }]
 }, {
   timestamps: true
 });
 
-// Calculate total days before saving
+// Indexes for better query performance
+leaveSchema.index({ employeeId: 1, status: 1 });
+leaveSchema.index({ department: 1, status: 1 });
+leaveSchema.index({ startDate: 1, endDate: 1 });
+leaveSchema.index({ createdAt: -1 });
+
+// Virtual for formatted dates
+leaveSchema.virtual('formattedStartDate').get(function() {
+  return this.startDate.toLocaleDateString();
+});
+
+leaveSchema.virtual('formattedEndDate').get(function() {
+  return this.endDate.toLocaleDateString();
+});
+
+// Method to calculate working days (excluding weekends)
+leaveSchema.methods.calculateWorkingDays = function() {
+  const start = new Date(this.startDate);
+  const end = new Date(this.endDate);
+  let workingDays = 0;
+  
+  for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+    const dayOfWeek = date.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Not Sunday or Saturday
+      workingDays++;
+    }
+  }
+  
+  return workingDays;
+};
+
+// Pre-save middleware to calculate total days
 leaveSchema.pre('save', function(next) {
-  if (this.startDate && this.endDate) {
-    const start = new Date(this.startDate);
-    const end = new Date(this.endDate);
-    const diffTime = Math.abs(end - start);
-    this.totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  if (this.isModified('startDate') || this.isModified('endDate')) {
+    this.totalDays = this.calculateWorkingDays();
   }
   next();
 });

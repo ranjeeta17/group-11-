@@ -1,6 +1,7 @@
 // components/admin/LeaveManagement.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import axiosInstance from '../axiosConfig';
 
 const LeaveManagement = ({ onBack }) => {
   const { user } = useAuth();
@@ -48,21 +49,14 @@ const LeaveManagement = ({ onBack }) => {
   const fetchLeaves = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
       const queryParams = new URLSearchParams();
       if (filters.status) queryParams.append('status', filters.status);
       if (filters.department) queryParams.append('department', filters.department);
       queryParams.append('page', filters.page);
       queryParams.append('limit', '10');
 
-      const response = await fetch(`http://localhost:5001/api/leaves/admin/leaves?${queryParams}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const data = await response.json();
+      const { data } = await axiosInstance.get(`/api/leaves/admin/leaves?${queryParams}`);
+      
       if (data.success) {
         setLeaves(data.leaves);
       } else {
@@ -79,15 +73,8 @@ const LeaveManagement = ({ onBack }) => {
 
   const fetchStatistics = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/leaves/admin/statistics', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const data = await response.json();
+      const { data } = await axiosInstance.get('/api/leaves/admin/statistics');
+      
       if (data.success) {
         setStatistics(data.statistics);
       } else {
@@ -117,37 +104,35 @@ const LeaveManagement = ({ onBack }) => {
   const handleStatusUpdate = async () => {
     if (!selectedLeave || !actionType) return;
 
+    if (actionType === 'rejected' && !rejectionReason.trim()) {
+      alert('Please provide a rejection reason');
+      return;
+    }
+
     setActionLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5001/api/leaves/admin/${selectedLeave._id}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          status: actionType,
-          rejectionReason: actionType === 'rejected' ? rejectionReason : undefined
-        })
+      const { data } = await axiosInstance.patch(`/api/leaves/admin/${selectedLeave._id}/status`, {
+        status: actionType,
+        rejectionReason: actionType === 'rejected' ? rejectionReason : undefined
       });
 
-      const data = await response.json();
       if (data.success) {
         // Update the leave in the list
         setLeaves(leaves.map(leave => 
-          leave._id === selectedLeave._id ? { ...leave, status: actionType } : leave
+          leave._id === selectedLeave._id ? { 
+            ...leave, 
+            status: actionType,
+            rejectionReason: actionType === 'rejected' ? rejectionReason : leave.rejectionReason
+          } : leave
         ));
         closeModal();
         fetchStatistics(); // Refresh statistics
+      } else {
+        alert(data.message || 'Failed to update leave status');
       }
     } catch (error) {
       console.error('Error updating leave status:', error);
-      // For demo, just update locally
-      setLeaves(leaves.map(leave => 
-        leave._id === selectedLeave._id ? { ...leave, status: actionType } : leave
-      ));
-      closeModal();
+      alert(error.response?.data?.message || 'Failed to update leave status');
     } finally {
       setActionLoading(false);
     }
@@ -174,6 +159,23 @@ const LeaveManagement = ({ onBack }) => {
       day: 'numeric'
     });
   };
+
+  // Show access denied for non-admin users
+  if (user?.role !== 'admin') {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <p className="text-gray-600">Admin access required for leave management.</p>
+          <button 
+            onClick={onBack}
+            className="mt-4 text-blue-600 hover:text-blue-700"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -304,7 +306,7 @@ const LeaveManagement = ({ onBack }) => {
       {/* Leave Requests Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Leave Requests</h3>
+          <h3 className="text-lg font-medium text-gray-900">Leave Requests ({leaves.length})</h3>
         </div>
 
         <div className="overflow-x-auto">
@@ -357,6 +359,11 @@ const LeaveManagement = ({ onBack }) => {
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[leave.status]}`}>
                       {leave.status.charAt(0).toUpperCase() + leave.status.slice(1)}
                     </span>
+                    {leave.rejectionReason && (
+                      <div className="text-xs text-red-600 mt-1 max-w-xs truncate">
+                        {leave.rejectionReason}
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     {leave.status === 'pending' ? (
