@@ -230,28 +230,37 @@ const RegisterPage = () => {
   // Step 1: Admin Key Validation
   if (step === 1) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 px-4">
+      <main style={{
+                minHeight: "100vh",
+                width: "100%",
+                backgroundImage: "url('/background.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                fontFamily: "Afacad, sans-serif"
+              }}
+              className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">🔐</span>
+            <div className="flex items-center justify-center mx-auto mb-4">
+              <img src="/timetrackr11_main.svg" alt="timetrackr11 logo" className="h-12" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Admin Authorization Required</h2>
-            <p className="text-gray-600">Enter admin access key to register new user</p>
+            <p className="text-black">Enter admin access key to register new user</p>
           </div>
           
           <form onSubmit={handleKeyValidation} className="space-y-6">
             {keyError && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-center">
                 <div className="flex items-center justify-center">
-                  <span className="text-red-500 mr-2">⚠️</span>
+                  <span className="text-red-500 mr-2"><img src="/warning.svg" alt="warning" className="h-6" /></span>
                   {keyError}
                 </div>
               </div>
             )}
             
             <div>
-              <label htmlFor="adminKey" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="adminKey" className="block text-sm font-medium text-black mb-2">
                 Admin Access Key *
               </label>
               <div className="relative">
@@ -267,9 +276,9 @@ const RegisterPage = () => {
                   placeholder="Enter admin access key"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                 />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                {/* <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                   <span className="text-gray-400">🔑</span>
-                </div>
+                </div> */}
               </div>
             </div>
             
@@ -290,10 +299,10 @@ const RegisterPage = () => {
           </form>
           
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              Already have an account?{' '}
-              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                Sign in
+            <p className="text-black">
+              Have a TimeTrackr11 account?{" "}
+              <Link to="/login" className="text-red-600 font-bold">
+                SIGN IN
               </Link>
             </p>
           </div>
@@ -310,7 +319,7 @@ const RegisterPage = () => {
             <p className="text-xs text-yellow-700 mt-2 text-center">Click to use</p>
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -351,9 +360,16 @@ const RegisterPage = () => {
 
   // Step 2: Registration Form
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 px-4 py-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+    <main style={{fontFamily: "Afacad, sans-serif"}}className="min-h-screen bg-white flex">
+      {/* left */}
+      <div className="w-2/5 h-screen flex items-center justify-center"
+          style={{
+        background: "url('/background.png') center/cover no-repeat"
+      }}>
+      <img src="/timetrackr11_page.svg" alt="TimeTrackr11 Logo" className="h-20" />
+      </div>
+
+      <div className="w-3/5 p-10">
           {/* Header */}
           <div className="text-center mb-8 relative">
             <button
@@ -362,9 +378,9 @@ const RegisterPage = () => {
             >
               ← Back
             </button>
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            {/* <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">👤</span>
-            </div>
+            </div> */}
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Create New Account</h2>
             <p className="text-gray-600">Fill out the information below to register</p>
             <div className="mt-3 inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
@@ -388,7 +404,7 @@ const RegisterPage = () => {
               {/* Full Name */}
               <div className="md:col-span-2">
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name *
+                  Full Name <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -415,7 +431,7 @@ const RegisterPage = () => {
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address *
+                  Email Address <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="email"
@@ -442,7 +458,7 @@ const RegisterPage = () => {
               {/* Employee ID */}
               <div>
                 <label htmlFor="employeeId" className="block text-sm font-medium text-gray-700 mb-2">
-                  Employee ID *
+                  Employee ID <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -469,7 +485,7 @@ const RegisterPage = () => {
               {/* Department */}
               <div>
                 <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
-                  Department *
+                  Department <span className="text-red-600">*</span>
                 </label>
                 <select
                   id="department"
@@ -499,7 +515,7 @@ const RegisterPage = () => {
               {/* Role */}
               <div>
                 <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
-                  Role *
+                  Role <span className="text-red-600">*</span>
                 </label>
                 <select
                   id="role"
@@ -527,7 +543,7 @@ const RegisterPage = () => {
               {/* Password */}
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Password *
+                  Password <span className="text-red-600">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -549,7 +565,7 @@ const RegisterPage = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                    {showPassword ? <img src="/visible.svg" alt="visible" className="h-5" /> : <img src="/invisible.svg" alt="invisible" className="h-5" />}
                   </button>
                 </div>
                 <p className="mt-1 text-xs text-gray-500">
@@ -566,7 +582,7 @@ const RegisterPage = () => {
               {/* Confirm Password */}
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm Password *
+                  Confirm Password <span className="text-red-600">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -588,7 +604,7 @@ const RegisterPage = () => {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
                   >
-                    {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                    {showConfirmPassword ? <img src="/visible.svg" alt="visible" className="h-5" /> : <img src="/invisible.svg" alt="invisible" className="h-5" />}
                   </button>
                 </div>
                 {formData.password && formData.confirmPassword && formData.password === formData.confirmPassword && (
@@ -611,7 +627,7 @@ const RegisterPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-green-600 text-white py-4 px-6 rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium text-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-red-600 text-white py-4 px-6 rounded-lg hover:bg-red-800 font-bold text-lg transition"
               >
                 {loading ? (
                   <div className="flex items-center justify-center">
@@ -626,17 +642,16 @@ const RegisterPage = () => {
           </form>
           
           {/* Footer */}
-          <div className="mt-8 text-center border-t pt-6">
-            <p className="text-gray-600">
-              Already have an account?{' '}
-              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                Sign in here
+          <div className="mt-6 text-center border-t pt-6">
+            <p className="text-black">
+              Have a TimeTrackr11 account?{' '}
+              <Link to="/login" className="text-red-600 hover:text-red-800 font-bold">
+                SIGN IN
               </Link>
             </p>
           </div>
         </div>
-      </div>
-    </div>
+    </main>
   );
 };
 
