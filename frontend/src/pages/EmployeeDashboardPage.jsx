@@ -518,51 +518,53 @@ useEffect(() => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <img src="/timetrackr11_page.svg" alt="TimeTrackr11" className="h-10" />
-              <h1 className="text-2xl font-bold text-gray-900">
-                {currentView === 'dashboard' ? 'My Dashboard' : 
-                 currentView === 'leaves' ? 'My Leaves' :
-                 currentView === 'attendance' ? 'My Attendance' :
-                 currentView === 'profile' ? 'My Profile' :
-                 currentView === 'reports' ? 'My Reports' :
-                 currentView === 'schedule' ? 'My Schedule' : 'Dashboard'}
-              </h1>
-              <span className="text-sm text-gray-500">
-                {currentTime.toLocaleString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">Welcome, {user?.name}</p>
-                <p className="text-xs text-gray-500">{user?.department} • {user?.employeeId}</p>
+        <div className="flex items-center h-16">
+          <img src="/timetrackr11_page.svg" alt="TimeTrackr11" className="h-10 ml-10" />
+          <div className="flex-1 mx-auto px-4">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-4">
+                {/* <h1 className="text-2xl font-bold text-gray-900">
+                  {currentView === 'dashboard' ? 'My Dashboard' : 
+                  currentView === 'leaves' ? 'My Leaves' :
+                  currentView === 'attendance' ? 'My Attendance' :
+                  currentView === 'profile' ? 'My Profile' :
+                  currentView === 'reports' ? 'My Reports' :
+                  currentView === 'schedule' ? 'My Schedule' : 'Dashboard'}
+                </h1> */}
+                <span className="text-sm text-gray-500">
+                  {currentTime.toLocaleString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
               </div>
-              <div className="flex items-center space-x-2">
-                {/* <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
-                  Employee
-                </span> */}
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-1 text-[#2E4A8A] rounded-[9px] hover:bg-[#2E4A8A] hover:text-white mr-2"
-                >
-                  Logout
-                </button>
-                {/* <Link to="/profile"  */}
-                <button 
-                  onClick={() => navigateToView('profile')}
-                  className="px-4 py-1 group flex items-center justify-center">
-                  <img src="/profile.svg" alt="Profile Logo" className="h-12 block group-hover:hidden" />
-                  <img src="/profile_hover.svg" alt="Hover Profile Logo" className="h-12 hidden group-hover:block" />
-                </button>
+              <div className="flex items-center space-x-4">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900">Welcome, {user?.name}</p>
+                  <p className="text-xs text-gray-500">{user?.department} • {user?.employeeId}</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
+                    Employee
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-1 text-[#2E4A8A] rounded-[9px] hover:bg-[#2E4A8A] hover:text-white mr-2"
+                  >
+                    Logout
+                  </button>
+                  {/* <Link to="/profile"  */}
+                  <button 
+                    onClick={() => navigateToView('profile')}
+                    className="px-4 py-1 group flex items-center justify-center">
+                    <img src="/profile.svg" alt="Profile Logo" className="h-12 block group-hover:hidden" />
+                    <img src="/profile_hover.svg" alt="Hover Profile Logo" className="h-12 hidden group-hover:block" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

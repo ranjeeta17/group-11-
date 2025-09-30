@@ -382,14 +382,15 @@ const AdminDashboardPage = () => {
     >
       {/* Header */}
       <header className="bg-white shadow-sm border-b sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <img src="/timetrackr11_page.svg" alt="TimeTrackr11" className="h-10" />
-              <h1 className="text-2xl font-bold text-gray-900">
+        <div className="flex items-center h-16">
+          <img src="/timetrackr11_page.svg" alt="TimeTrackr11" className="h-10 ml-10" />
+          <div className="flex-1 mx-auto px-4">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-4">
+              {/* <h1 className="text-2xl font-bold text-gray-900">
                 {getCurrentViewTitle()}
-              </h1>
-              {currentView === 'dashboard' && (
+              </h1> 
+              {currentView === 'dashboard' && (*/}
                 <span className="text-sm text-gray-500">
                   {currentTime.toLocaleString('en-US', {
                     weekday: 'long',
@@ -399,8 +400,7 @@ const AdminDashboardPage = () => {
                     hour: '2-digit',
                     minute: '2-digit'
                   })}
-                </span>
-              )}
+                </span>          
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
@@ -426,6 +426,7 @@ const AdminDashboardPage = () => {
                 </button>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </header>

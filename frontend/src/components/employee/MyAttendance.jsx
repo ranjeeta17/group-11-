@@ -128,16 +128,16 @@ console.log('My records (no filters):', data);
       <div className="mb-6 flex items-center justify-between">
         <button
           onClick={onBack}
-          className="text-gray-100 hover:text-gray-300 font-medium inline-flex items-center transition duration-200"
-        >
+          className="text-lg text-white hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
           ← Back to Dashboard
         </button>
       </div>
 
       {/* Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">My Time Records</h2>
-        <p className="text-gray-300 mt-1">Your login and logout sessions and durations (Brisbane time)</p>
+        <h2 className="text-2xl font-bold text-gray-900"
+          style={{ textShadow: '2px 2px 4px white' }}>My Attendance</h2>
+        <p className="text-lg text-gray-300 mt-1">Your login and logout sessions and durations (Brisbane time)</p>
       </div>
 
       {/* Month/Year Filter */}

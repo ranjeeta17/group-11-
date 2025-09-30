@@ -236,8 +236,7 @@ const MyLeaves = ({ onBack }) => {
         <div className="mb-6">
           <button
             onClick={onBack}
-            className="text-gray-100 hover:text-gray-300 font-medium inline-flex items-center transition duration-200"
-          >
+            className="text-lg text-white hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
             ← Back to Dashboard
           </button>
         </div>
@@ -245,8 +244,9 @@ const MyLeaves = ({ onBack }) => {
         {/* Page Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">My Leave Requests</h2>
-            <p className="text-gray-300 mt-2">Manage your leave applications and view balance</p>
+            <h2 className="text-2xl font-bold text-gray-900"
+              style={{ textShadow: '2px 2px 4px white' }}>My Leave Requests</h2>
+            <p className="text-lg text-gray-300 mt-2">Manage your leave applications and view balance</p>
           </div>
           <button
             onClick={() => setShowApplyModal(true)}

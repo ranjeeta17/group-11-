@@ -192,14 +192,13 @@ const MyProfile = ({ onBack }) => {
         <div className="mb-6">
           <button
             onClick={onBack}
-            className="text-gray-100 hover:text-gray-300 font-medium inline-flex items-center transition duration-200"
-          >
+            className="text-lg text-white hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
             ← Back to Dashboard
           </button>
         </div>
 
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-end items-center mb-8">
           {/* <div>
             <h2 className="text-2xl font-bold text-gray-900">My Profile</h2>
             <p className="text-gray-600 mt-2">Manage your personal information and account settings</p>
