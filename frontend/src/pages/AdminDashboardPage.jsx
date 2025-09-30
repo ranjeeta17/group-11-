@@ -174,7 +174,7 @@ const AdminDashboardPage = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Employees</p>
+              <p className="text-sm font-medium text-gray-600">Employees</p>
               <p className="text-3xl font-bold text-gray-900">{stats.totalEmployees}</p>
               <p className="text-xs text-green-600 mt-1">↗ +3 this month</p>
             </div>
@@ -187,7 +187,7 @@ const AdminDashboardPage = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Present Today</p>
+              <p className="text-sm font-medium text-gray-600">Present</p>
               <p className="text-3xl font-bold text-gray-900">{stats.presentToday}</p>
               <p className="text-xs text-gray-500 mt-1">{((stats.presentToday / stats.totalEmployees) * 100).toFixed(1)}% attendance</p>
             </div>
@@ -200,7 +200,7 @@ const AdminDashboardPage = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">On Leave</p>
+              <p className="text-sm font-medium text-gray-600">Absent</p>
               <p className="text-3xl font-bold text-gray-900">{stats.onLeave}</p>
               <p className="text-xs text-yellow-600 mt-1">{stats.pendingLeaveRequests} pending requests</p>
             </div>
@@ -371,12 +371,21 @@ const AdminDashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen"
+      style={{
+        backgroundImage: "url('/background.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        fontFamily: "Afacad, sans-serif"
+      }}
+    >
       {/* Header */}
       <header className="bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
+              <img src="/timetrackr11_page.svg" alt="TimeTrackr11" className="h-10" />
               <h1 className="text-2xl font-bold text-gray-900">
                 {getCurrentViewTitle()}
               </h1>
