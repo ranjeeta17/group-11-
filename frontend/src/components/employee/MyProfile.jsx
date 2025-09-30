@@ -187,7 +187,7 @@ const MyProfile = ({ onBack }) => {
                 backgroundRepeat: "no-repeat",
                 fontFamily: "Afacad, sans-serif"
               }}>
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <div className="mb-6">
           <button
@@ -207,7 +207,7 @@ const MyProfile = ({ onBack }) => {
           {!editMode && (
             <button
               onClick={() => setEditMode(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+              className="bg-[#2E4A8A] text-white px-4 py-2 rounded-lg shadow-md hover:bg-white hover:text-black transition duration-200"
             >
               Edit Profile
             </button>
@@ -215,7 +215,7 @@ const MyProfile = ({ onBack }) => {
         </div>
 
         {/* Profile Information */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-8">
           <div className="flex justify-between items-center mb-6 pb-3"
             style={{ 
               borderBottom: "3px solid #2E4A8A",
@@ -227,14 +227,14 @@ const MyProfile = ({ onBack }) => {
               <div className="space-x-3">
                 <button
                   onClick={handleCancelEdit}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition duration-200"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition duration-200"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSaveProfile}
                   disabled={loading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200 disabled:opacity-50"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
                 >
                   {loading ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -356,7 +356,7 @@ const MyProfile = ({ onBack }) => {
                     fontWeight: "normal",
                     lineHeight: "normal",
                   }}>Employee ID</label>
-                <p className="text-gray-900 bg-blue-50 px-3 py-2 rounded-md font-medium text-blue-700">{profileData.employeeId}</p>
+                <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.employeeId}</p>
               </div>
 
               <div>
@@ -380,7 +380,7 @@ const MyProfile = ({ onBack }) => {
                     fontWeight: "normal",
                     lineHeight: "normal",
                   }}>Role</label>
-                <p className="text-gray-900 bg-green-50 px-3 py-2 rounded-md capitalize text-green-700">{profileData.role}</p>
+                <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md capitalize">{profileData.role}</p>
               </div>
 
               <div>
@@ -429,7 +429,7 @@ const MyProfile = ({ onBack }) => {
         </div>
 
         {/* Change Password Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-medium text-gray-900">Security Settings</h3>
             <button
@@ -449,7 +449,14 @@ const MyProfile = ({ onBack }) => {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>Current Password</label>
                 <input
                   type="password"
                   value={passwordData.currentPassword}
@@ -462,7 +469,14 @@ const MyProfile = ({ onBack }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>New Password</label>
                 <input
                   type="password"
                   value={passwordData.newPassword}
@@ -475,7 +489,14 @@ const MyProfile = ({ onBack }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>Confirm New Password</label>
                 <input
                   type="password"
                   value={passwordData.confirmPassword}
