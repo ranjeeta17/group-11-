@@ -1,67 +1,24 @@
 const mongoose = require('mongoose');
 
 const shiftSchema = new mongoose.Schema({
-  employeeId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  shiftType: { 
+    type: String, 
+    required: true, 
+    enum: ['morning', 'evening', 'night'],
+    index: true 
   },
-  date: {
-    type: Date,
-    required: true
+  startTime: { type: Date, required: true },
+  endTime: { type: Date, required: true },
+  assignedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  status: { 
+    type: String, 
+    enum: ['assigned', 'confirmed', 'completed', 'cancelled'], 
+    default: 'assigned' 
   },
-  startTime: {
-    type: String, // Format: "HH:MM"
-    required: true
-  },
-  endTime: {
-    type: String, // Format: "HH:MM"
-    required: true
-  },
-  shiftType: {
-    type: String,
-    enum: ['regular', 'overtime', 'night', 'weekend', 'holiday'],
-    default: 'regular'
-  },
-  status: {
-    type: String,
-    enum: ['scheduled', 'completed', 'missed', 'cancelled'],
-    default: 'scheduled'
-  },
-  notes: {
-    type: String,
-    trim: true
-  },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  totalHours: {
-    type: Number,
-    default: 0
-  }
-}, {
-  timestamps: true
-});
+  notes: { type: String, trim: true }
+}, { timestamps: true });
 
-// Calculate total hours before saving
-shiftSchema.pre('save', function(next) {
-  if (this.startTime && this.endTime) {
-    const start = new Date(`2000-01-01T${this.startTime}`);
-    const end = new Date(`2000-01-01T${this.endTime}`);
-    
-    // Handle overnight shifts
-    if (end < start) {
-      end.setDate(end.getDate() + 1);
-    }
-    
-    const diffMs = end - start;
-    this.totalHours = Math.round((diffMs / (1000 * 60 * 60)) * 100) / 100;
-  }
-  next();
-});
-
-// Compound index to prevent duplicate shifts
-shiftSchema.index({ employeeId: 1, date: 1, startTime: 1 }, { unique: true });
+shiftSchema.index({ userId: 1, startTime: 1, endTime: 1 });
 
 module.exports = mongoose.model('Shift', shiftSchema);
