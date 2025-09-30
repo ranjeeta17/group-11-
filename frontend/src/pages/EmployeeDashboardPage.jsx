@@ -66,6 +66,9 @@ const EmployeeDashboardPage = () => {
       type: 'report'
     }
   ]);
+  const [openSession, setOpenSession] = useState(null); // current open time record (or null)
+const [elapsedSec, setElapsedSec] = useState(0);
+
 
   // Update time every minute
   useEffect(() => {
@@ -90,6 +93,49 @@ const EmployeeDashboardPage = () => {
     }
   };
 
+  // Fetch the current open session once on mount and every 60s (in case another tab checks out)
+useEffect(() => {
+  const refreshOpenSession = async () => {
+    try {
+      const { data } = await axiosInstance.get('/api/time-records/mine', {
+        params: { openOnly: true, limit: 1 }
+      });
+      setOpenSession((data?.records && data.records[0]) || null);
+    } catch (e) {
+      console.error('Failed to load open session', e);
+      setOpenSession(null);
+    }
+  };
+
+  refreshOpenSession();
+  const sync = setInterval(refreshOpenSession, 60000);
+  return () => clearInterval(sync);
+}, []);
+
+// Tick the live timer every second while there is an open session
+useEffect(() => {
+  if (!openSession?.loginAt) {
+    setElapsedSec(0);
+    return;
+  }
+  const start = new Date(openSession.loginAt).getTime();
+
+  const tick = () => {
+    const now = Date.now();
+    setElapsedSec(Math.max(0, Math.floor((now - start) / 1000)));
+  };
+
+  tick(); // compute immediately
+  const t = setInterval(tick, 1000);
+  return () => clearInterval(t);
+}, [openSession]);
+
+  const liveHHMM = (() => {
+    const h = Math.floor(elapsedSec / 3600);
+    const m = Math.floor((elapsedSec % 3600) / 60);
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  })();
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -97,12 +143,12 @@ const EmployeeDashboardPage = () => {
 
   const handleCheckIn = () => {
     setIsCheckedIn(true);
-    // Add actual check-in API call here
+    
   };
 
   const handleCheckOut = () => {
     setIsCheckedIn(false);
-    // Add actual check-out API call here
+   
   };
 
   const navigateToView = (view) => {
@@ -113,7 +159,6 @@ const EmployeeDashboardPage = () => {
     setCurrentView('dashboard');
   };
 
-  // Render different views based on currentView state
   const renderCurrentView = () => {
     switch (currentView) {
       case 'leaves':
@@ -204,68 +249,38 @@ const EmployeeDashboardPage = () => {
 
   const renderDashboardView = () => (
     <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      {/* Today's Info & Quick Check-in */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Today's Schedule */}
-        <div className="lg:col-span-2 rounded-xl text-white p-6 bg-cover bg-center"
-          style={{ backgroundImage: "url('/background.png')" }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold mb-2">Today's Schedule</h2>
-              <div className="space-y-1 text-blue-100">
-                <p><span className="font-medium">Shift:</span> {todaySchedule.shift}</p>
-                <p><span className="font-medium">Time:</span> {todaySchedule.startTime} - {todaySchedule.endTime}</p>
-                <p><span className="font-medium">Break:</span> {todaySchedule.breakTime}</p>
-                <p><span className="font-medium">Worked:</span> {todayWorkTime}</p>
-              </div>
-            </div>
-            {/* <div className="text-right">
-              <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-2">
-                <span className="text-3xl">📅</span>
-              </div>
-              <span className="bg-green-400 bg-opacity-80 px-3 py-1 rounded-full text-xs font-medium">
-                {todaySchedule.status}
-              </span>
-            </div> */}
-          </div>
-        </div>
+    
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"> 
+           <div className="lg:col-span-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white p-6"> 
+            <div className="flex items-center justify-between"> <div> 
+              <h2 className="text-xl font-semibold mb-2">Today's Schedule</h2> 
+              <div className="space-y-1 text-blue-100"> <p>
+                <span className="font-medium">Shift:</span> {todaySchedule.shift}</p> 
+                <p><span className="font-medium">Time:</span> {todaySchedule.startTime} - {todaySchedule.endTime}</p> 
+                <p><span className="font-medium">Break:</span> {todaySchedule.breakTime}</p> <p><span className="font-medium">Worked:</span> {todayWorkTime}</p> 
+                </div> 
+                </div> 
+                <div className="text-right"> <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-2">
+                   <span className="text-3xl">📅</span> </div> <span className="bg-green-400 bg-opacity-80 px-3 py-1 rounded-full text-xs font-medium"> {todaySchedule.status} </span> 
+                   </div> 
+                   </div>
+                    </div>  
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"> 
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">Live</h3> 
+                    <p className="text-black text-center">
+                    <span className="text-xl  font-bold tracking-wider">
+                      {openSession ? liveHHMM : '—'}
+                    </span><br></br>
+                    {openSession && (
+                      <span className="ml-2 text-xs text-black-100">
+                        since {openSession.loginLocal?.time} ({openSession.loginLocal?.dayName})
+                      </span>
+                    )}
+                      </p>
+                     </div> 
+                 </div>
+       
 
-        {/* Check In/Out */}
-        {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">Quick Actions</h3>
-          <div className="space-y-4">
-            {!isCheckedIn ? (
-              <button
-                onClick={handleCheckIn}
-                className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium transition duration-200"
-              >
-                🟢 Check In
-              </button>
-            ) : (
-              <button
-                onClick={handleCheckOut}
-                className="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium transition duration-200"
-              >
-                🔴 Check Out
-              </button>
-            )}
-            <button 
-              onClick={() => navigateToView('leaves')}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 text-sm"
-            >
-              📝 Request Leave
-            </button>
-            <button 
-              onClick={() => navigateToView('reports')}
-              className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-200 text-sm"
-            >
-              📊 View Reports
-            </button>
-          </div>
-        </div> */}
-      </div>
-
-      {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
