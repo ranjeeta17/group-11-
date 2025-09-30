@@ -178,16 +178,16 @@ useEffect(() => {
 
   const quickActions = [
     {
-      icon: '✅',
+      icon: <img src="/myAttendance.svg" alt="Attendance" className="h-20" />,
       title: 'My Attendance',
       description: 'View your daily attendance records',
       value: `${stats.attendedDays}/${stats.totalWorkDays}`,
       subtext: 'This month',
-      color: 'green',
+      color: 'blue',
       action: () => navigateToView('attendance')
     },
     {
-      icon: '📝',
+      icon: <img src="/leaveRequest.svg" alt="Attendance" className="h-20" />,
       title: 'Leave Request',
       description: 'Submit new leave applications',
       value: stats.pendingRequests,
@@ -196,63 +196,53 @@ useEffect(() => {
       action: () => navigateToView('leaves')
     },
     {
-      icon: '📅',
+      icon: <img src="/calendar.svg" alt="schedule" className="h-20" />,
       title: 'My Schedule',
       description: 'View your shift assignments',
       value: todaySchedule.shift.split(' ')[0],
       subtext: 'Current shift',
-      color: 'purple',
+      color: 'blue',
       action: () => navigateToView('schedule')
     },
     {
-      icon: '⏰',
+      icon: <img src="/overtime.svg" alt="overtime" className="h-20" />,
       title: 'Overtime',
       description: 'Track your extra working hours',
       value: `${stats.overtimeHours}h`,
       subtext: 'This month',
-      color: 'orange',
+      color: 'blue',
       action: () => console.log('Overtime clicked')
     },
-    {
-      icon: '👤',
-      title: 'My Profile',
-      description: 'Update personal information',
-      value: 'Edit',
-      subtext: 'Profile settings',
-      color: 'indigo',
-      action: () => navigateToView('profile')
-    },
-    {
-      icon: '📊',
-      title: 'Reports',
-      description: 'Download attendance reports',
-      value: 'View',
-      subtext: 'Monthly reports',
-      color: 'gray',
-      action: () => navigateToView('reports')
-    }
+    // {
+    //   icon: '👤',
+    //   title: 'My Profile',
+    //   description: 'Update personal information',
+    //   value: 'Edit',
+    //   subtext: 'Profile settings',
+    //   color: 'indigo',
+    //   action: () => navigateToView('profile')
+    // },
+    // {
+    //   icon: '📊',
+    //   title: 'Reports',
+    //   description: 'Download attendance reports',
+    //   value: 'View',
+    //   subtext: 'Monthly reports',
+    //   color: 'gray',
+    //   action: () => navigateToView('reports')
+    // }
   ];
 
   const getColorClasses = (color) => {
     const colors = {
-      green: 'bg-green-50 border-green-200 text-green-700',
-      blue: 'bg-blue-50 border-blue-200 text-blue-700',
-      purple: 'bg-purple-50 border-purple-200 text-purple-700',
-      orange: 'bg-orange-50 border-orange-200 text-orange-700',
-      indigo: 'bg-indigo-50 border-indigo-200 text-indigo-700',
-      gray: 'bg-gray-50 border-gray-200 text-gray-700'
+      blue: 'bg-gray-50 border-[#2E4A8A]]-800 text-black',
     };
     return colors[color] || colors.green;
   };
 
   const getButtonColorClasses = (color) => {
     const colors = {
-      green: 'bg-green-600 hover:bg-green-700 focus:ring-green-300',
-      blue: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-300',
-      purple: 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-300',
-      orange: 'bg-orange-600 hover:bg-orange-700 focus:ring-orange-300',
-      indigo: 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-300',
-      gray: 'bg-gray-600 hover:bg-gray-700 focus:ring-gray-300'
+      blue: 'bg-[#2E4A8A] text-white hover:bg-[#1b2a4a]',
     };
     return colors[color] || colors.green;
   };
@@ -299,8 +289,8 @@ useEffect(() => {
               <p className="text-3xl font-bold text-gray-900">{stats.attendanceRate}%</p>
               <p className="text-xs text-green-600 mt-1">{stats.attendedDays} of {stats.totalWorkDays} days</p>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <span className="text-2xl">✅</span>
+            <div className="w-12 h-12 flex items-center justify-center">
+              <span className="text-2xl"><img src="/present.svg" alt="Attendance" /></span>
             </div>
           </div>
         </div>
@@ -312,8 +302,8 @@ useEffect(() => {
               <p className="text-3xl font-bold text-gray-900">{stats.leavesRemaining}</p>
               <p className="text-xs text-blue-600 mt-1">{stats.leavesUsed} used this year</p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-2xl">📅</span>
+            <div className="w-12 h-12 flex items-center justify-center">
+              <span className="text-2xl"><img src="/calendar.svg" alt="Leave Balance" /></span>
             </div>
           </div>
         </div>
@@ -325,8 +315,8 @@ useEffect(() => {
               <p className="text-3xl font-bold text-gray-900">{stats.thisMonthHours}h</p>
               <p className="text-xs text-purple-600 mt-1">+{stats.overtimeHours}h overtime</p>
             </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-              <span className="text-2xl">⏰</span>
+            <div className="w-12 h-12 flex items-center justify-center">
+              <span className="text-2xl"><img src="/latecomer.svg" alt="Late" /></span>
             </div>
           </div>
         </div>
@@ -345,7 +335,7 @@ useEffect(() => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         {/* Quick Actions */}
         <div className="xl:col-span-2">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -380,7 +370,7 @@ useEffect(() => {
         {/* Recent Activities & Profile Summary */}
         <div className="xl:col-span-1 space-y-6">
           {/* Recent Activities */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
               <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
@@ -400,10 +390,10 @@ useEffect(() => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Quick Stats */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Quick Stats</h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
@@ -445,12 +435,12 @@ useEffect(() => {
                 <span className="text-lg font-bold text-purple-600">4.8/5</span>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* Employee Profile Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-8">
+      {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-8">
         <h2 className="text-xl font-semibold text-gray-900 mb-6 pb-4 border-b border-gray-200">
           Employee Profile
         </h2>
@@ -479,10 +469,10 @@ useEffect(() => {
               {user?.employeeId}
             </p>
           </div>
-        </div>
+        </div> */}
 
         {/* Additional Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 pt-6 border-t border-gray-200">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 pt-6 border-t border-gray-200">
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-500 uppercase tracking-wide">Joining Date</label>
             <p className="text-gray-900 font-medium bg-gray-50 px-4 py-3 rounded-lg">March 15, 2023</p>
@@ -496,7 +486,7 @@ useEffect(() => {
             <p className="text-gray-900 font-medium bg-gray-50 px-4 py-3 rounded-lg">{stats.lastLogin}</p>
           </div>
         </div>
-      </div>
+      </div> */}
     </main>
   );
 
@@ -549,14 +539,21 @@ useEffect(() => {
                 <p className="text-xs text-gray-500">{user?.department} • {user?.employeeId}</p>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
+                {/* <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
                   Employee
-                </span>
+                </span> */}
                 <button
                   onClick={handleLogout}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200 text-sm font-medium"
+                  className="px-4 py-1 text-[#2E4A8A] rounded-[9px] hover:bg-[#2E4A8A] hover:text-white mr-2"
                 >
                   Logout
+                </button>
+                {/* <Link to="/profile"  */}
+                <button 
+                  onClick={() => navigateToView('profile')}
+                  className="px-4 py-1 group flex items-center justify-center">
+                  <img src="/profile.svg" alt="Profile Logo" className="h-12 block group-hover:hidden" />
+                  <img src="/profile_hover.svg" alt="Hover Profile Logo" className="h-12 hidden group-hover:block" />
                 </button>
               </div>
             </div>
