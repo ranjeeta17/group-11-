@@ -123,13 +123,21 @@ const MySchedule = ({ onBack }) => {
   }
 
   return (
+  <main style={{
+              minHeight: "100vh",
+              width: "100%",
+              backgroundImage: "url('/background.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              fontFamily: "Afacad, sans-serif"
+            }}>   
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       {/* Back Button */}
       <div className="mb-6">
         <button
           onClick={onBack}
-          className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center transition duration-200"
-        >
+          className="text-lg text-white hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
           ← Back to Dashboard
         </button>
       </div>
@@ -137,30 +145,31 @@ const MySchedule = ({ onBack }) => {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">My Schedule</h2>
-          <p className="text-gray-600 mt-2">View your weekly work schedule and upcoming shifts</p>
+          <h2 className="text-2xl font-bold text-gray-900"
+            style={{ textShadow: '2px 2px 4px white' }}>My Schedule</h2>
+          <p className="text-lg text-gray-300 mt-2">View your weekly work schedule and upcoming shifts</p>
         </div>
         
         {/* Week Navigation */}
         <div className="flex items-center space-x-4">
           <button
             onClick={() => navigateWeek(-1)}
-            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition duration-200"
+            className="p-2 text-white hover:text-gray-900 hover:bg-gray-100 rounded-lg transition duration-200"
           >
             ←
           </button>
-          <span className="text-lg font-medium text-gray-900 min-w-max">
+          <span className="text-lg font-medium text-gray-400 min-w-max">
             {getCurrentWeekRange()}
           </span>
           <button
             onClick={() => navigateWeek(1)}
-            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition duration-200"
+            className="p-2 text-white hover:text-gray-900 hover:bg-gray-100 rounded-lg transition duration-200"
           >
             →
           </button>
           <button
             onClick={() => setCurrentWeek(new Date())}
-            className="px-3 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition duration-200"
+            className="px-3 py-2 text-white hover:text-gray-900 hover:bg-gray-100 rounded-lg transition duration-200"
           >
             Today
           </button>
@@ -377,6 +386,7 @@ const MySchedule = ({ onBack }) => {
         </div>
       </div>
     </div>
+  </main> 
   );
 };
 

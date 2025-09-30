@@ -5,22 +5,21 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const User = require('./models/User');
-const Leave = require('./models/Leave'); // Import Leave model
+const timeRecordRoutes = require('./routes/timeRecordRoutes');
 
-// Fix mongoose deprecation warning
+const Leave = require('./models/Leave'); 
+
 mongoose.set('strictQuery', false);
 
 const app = express();
 
-// --- Middleware ---
 app.use(cors({
-  origin: "http://localhost:3000",   // React app
+  origin: "http://localhost:3000",   
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
 
-// Respond to preflight requests
 app.options("*", cors());
 
 app.use(express.json({ limit: '10mb' }));
@@ -125,6 +124,7 @@ app.post('/api/auth/register', async (req, res) => {
 });
 
 // Login route
+// Login route
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -134,25 +134,43 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
+    if (!user) return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
-    // Check if user is active
     if (!user.isActive) {
       return res.status(401).json({ success: false, message: 'Account is deactivated. Please contact administrator.' });
     }
 
     const isPasswordValid = await user.comparePassword(password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
+    if (!isPasswordValid) return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
     const token = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
+
+    // --- NEW: create a time record (check-in) automatically ---
+    const TimeRecord = require('./models/TimeRecord');
+    const { toLocalParts } = require('./controllers/timeRecordController');
+
+    // close any dangling open session (optional)
+    const open = await TimeRecord.findOne({ user: user._id, logoutAt: null }).sort({ loginAt: -1 });
+    if (open) {
+      open.logoutAt = new Date();
+      open.logoutLocal = toLocalParts(open.logoutAt);
+      open.durationMinutes = Math.round((open.logoutAt - open.loginAt) / 60000);
+      await open.save();
+    }
+
+    const now = new Date();
+    await TimeRecord.create({
+      user: user._id,
+      loginAt: now,
+      loginLocal: toLocalParts(now),
+      userAgent: req.headers['user-agent'],
+      ip: req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress
+    });
+    // --- end NEW ---
 
     res.json({
       success: true,
@@ -412,6 +430,7 @@ app.delete('/api/auth/employees/:id', authenticateToken, requireAdmin, async (re
   }
 });
 
+app.use('/api/time-records', timeRecordRoutes);
 // --- LEAVE MANAGEMENT ROUTES ---
 
 // Helper function to calculate working days
@@ -834,9 +853,29 @@ app.get('/api/leaves/admin/statistics', authenticateToken, requireAdmin, async (
 });
 
 // Logout route
-app.post('/api/auth/logout', (req, res) => {
-  res.json({ success: true, message: 'Logout successful' });
+// Logout route
+app.post('/api/auth/logout', authenticateToken, async (req, res) => {
+  try {
+    const TimeRecord = require('./models/TimeRecord');
+    const { toLocalParts } = require('./controllers/timeRecordController');
+
+    const userId = req.user.userId;
+    const record = await TimeRecord.findOne({ user: userId, logoutAt: null }).sort({ loginAt: -1 });
+
+    if (record) {
+      record.logoutAt = new Date();
+      record.logoutLocal = toLocalParts(record.logoutAt);
+      record.durationMinutes = Math.round((record.logoutAt - record.loginAt) / 60000);
+      await record.save();
+    }
+    // Note: with JWT you can't truly "invalidate" on server—client should discard token.
+    res.json({ success: true, message: 'Logout successful' });
+  } catch (e) {
+    console.error('Logout/TimeRecord error:', e);
+    res.status(500).json({ success: false, message: 'Server error during logout' });
+  }
 });
+
 
 // Health route
 app.get('/api/health', (req, res) => {

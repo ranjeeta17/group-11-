@@ -26,43 +26,43 @@ const AdminDashboardPage = () => {
     systemUptime: '99.8%'
   });
   
-  const [recentActivities, setRecentActivities] = useState([
-    {
-      id: 1,
-      icon: '👤',
-      message: 'Sarah Johnson registered as new employee',
-      time: '2 minutes ago',
-      type: 'registration'
-    },
-    {
-      id: 2,
-      icon: '📝',
-      message: 'Mike Chen submitted leave request for Dec 25-27',
-      time: '15 minutes ago',
-      type: 'leave'
-    },
-    {
-      id: 3,
-      icon: '✅',
-      message: 'Alice Brown checked in at 9:15 AM',
-      time: '32 minutes ago',
-      type: 'attendance'
-    },
-    {
-      id: 4,
-      icon: '⏰',
-      message: 'David Lee worked 2 hours overtime yesterday',
-      time: '1 hour ago',
-      type: 'overtime'
-    },
-    {
-      id: 5,
-      icon: '🎯',
-      message: 'Weekly attendance report generated',
-      time: '2 hours ago',
-      type: 'report'
-    }
-  ]);
+  // const [recentActivities, setRecentActivities] = useState([
+  //   {
+  //     id: 1,
+  //     icon: '👤',
+  //     message: 'Sarah Johnson registered as new employee',
+  //     time: '2 minutes ago',
+  //     type: 'registration'
+  //   },
+  //   {
+  //     id: 2,
+  //     icon: '📝',
+  //     message: 'Mike Chen submitted leave request for Dec 25-27',
+  //     time: '15 minutes ago',
+  //     type: 'leave'
+  //   },
+  //   {
+  //     id: 3,
+  //     icon: '✅',
+  //     message: 'Alice Brown checked in at 9:15 AM',
+  //     time: '32 minutes ago',
+  //     type: 'attendance'
+  //   },
+  //   {
+  //     id: 4,
+  //     icon: '⏰',
+  //     message: 'David Lee worked 2 hours overtime yesterday',
+  //     time: '1 hour ago',
+  //     type: 'overtime'
+  //   },
+  //   {
+  //     id: 5,
+  //     icon: '🎯',
+  //     message: 'Weekly attendance report generated',
+  //     time: '2 hours ago',
+  //     type: 'report'
+  //   }
+  // ]);
 
   // Update time every minute
   useEffect(() => {
@@ -77,9 +77,13 @@ const AdminDashboardPage = () => {
     navigate('/login');
   };
 
+  const navigateToView = (view) => {
+    setCurrentView(view);
+  };
+
   const quickActions = [
     {
-      icon: '👥',
+      icon: <img src="/emplyee.svg" alt="employee management" className="h-20" />,
       title: 'Employee Management',
       description: 'Add, edit, or manage employee accounts',
       count: stats.totalEmployees,
@@ -87,27 +91,27 @@ const AdminDashboardPage = () => {
       action: () => setCurrentView('employees')
     },
     {
-      icon: '📝',
+      icon: <img src="/leaveRequest.svg" alt="leave request" className="h-20" />,
       title: 'Leave Requests',
       description: 'Review and approve pending leave requests',
       count: stats.pendingLeaveRequests,
-      color: 'yellow',
+      color: 'blue',
       action: () => setCurrentView('leaves')
     },
     {
-      icon: '📅',
+      icon: <img src="/calendar.svg" alt="calendar" className="h-20" />,
       title: 'Shift Management',
       description: 'Assign and schedule employee shifts',
       count: '24/7',
-      color: 'green',
+      color: 'blue',
       action: () => setCurrentView('shifts')
     },
     {
-      icon: '⏰',
+      icon: <img src="/overtime.svg" alt="overtime" className="h-20" />,
       title: 'Overtime Tracking',
       description: 'Monitor and approve overtime hours',
       count: `${stats.overtimeHours}h`,
-      color: 'purple',
+      color: 'blue',
       action: () => setCurrentView('overtime')
     },
     {
@@ -115,39 +119,29 @@ const AdminDashboardPage = () => {
       title: 'Analytics & Reports',
       description: 'Generate detailed attendance reports',
       count: 'View',
-      color: 'indigo',
+      color: 'blue',
       action: () => setCurrentView('analytics')
     },
-    {
-      icon: '⚙️',
-      title: 'System Settings',
-      description: 'Configure system preferences',
-      count: 'Config',
-      color: 'gray',
-      action: () => setCurrentView('settings')
-    }
+    // {
+    //   icon: '⚙️',
+    //   title: 'System Settings',
+    //   description: 'Configure system preferences',
+    //   count: 'Config',
+    //   color: 'blue',
+    //   action: () => setCurrentView('settings')
+    // }
   ];
 
   const getColorClasses = (color) => {
     const colors = {
-      blue: 'bg-blue-50 border-blue-200 text-blue-700',
-      yellow: 'bg-yellow-50 border-yellow-200 text-yellow-700',
-      green: 'bg-green-50 border-green-200 text-green-700',
-      purple: 'bg-purple-50 border-purple-200 text-purple-700',
-      indigo: 'bg-indigo-50 border-indigo-200 text-indigo-700',
-      gray: 'bg-gray-50 border-gray-200 text-gray-700'
+      blue: 'bg-gray-50 border-[#2E4A8A]]-800 text-black'
     };
     return colors[color] || colors.blue;
   };
 
   const getButtonColorClasses = (color) => {
     const colors = {
-      blue: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-300',
-      yellow: 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-300',
-      green: 'bg-green-600 hover:bg-green-700 focus:ring-green-300',
-      purple: 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-300',
-      indigo: 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-300',
-      gray: 'bg-gray-600 hover:bg-gray-700 focus:ring-gray-300'
+      blue: 'bg-[#2E4A8A] text-white hover:bg-[#1b2a4a]'
     };
     return colors[color] || colors.blue;
   };
@@ -180,7 +174,7 @@ const AdminDashboardPage = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Employees</p>
+              <p className="text-sm font-medium text-gray-600">Employees</p>
               <p className="text-3xl font-bold text-gray-900">{stats.totalEmployees}</p>
               <p className="text-xs text-green-600 mt-1">↗ +3 this month</p>
             </div>
@@ -193,7 +187,7 @@ const AdminDashboardPage = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Present Today</p>
+              <p className="text-sm font-medium text-gray-600">Present</p>
               <p className="text-3xl font-bold text-gray-900">{stats.presentToday}</p>
               <p className="text-xs text-gray-500 mt-1">{((stats.presentToday / stats.totalEmployees) * 100).toFixed(1)}% attendance</p>
             </div>
@@ -206,7 +200,7 @@ const AdminDashboardPage = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">On Leave</p>
+              <p className="text-sm font-medium text-gray-600">Absent</p>
               <p className="text-3xl font-bold text-gray-900">{stats.onLeave}</p>
               <p className="text-xs text-yellow-600 mt-1">{stats.pendingLeaveRequests} pending requests</p>
             </div>
@@ -230,7 +224,7 @@ const AdminDashboardPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         {/* Quick Actions */}
         <div className="xl:col-span-2">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -262,7 +256,7 @@ const AdminDashboardPage = () => {
         </div>
 
         {/* Recent Activities */}
-        <div className="xl:col-span-1">
+        {/* <div className="xl:col-span-1">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
@@ -283,10 +277,10 @@ const AdminDashboardPage = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* System Status */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+          {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">System Status</h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -316,7 +310,7 @@ const AdminDashboardPage = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Admin Profile Card */}
@@ -377,16 +371,26 @@ const AdminDashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen"
+      style={{
+        backgroundImage: "url('/background.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        fontFamily: "Afacad, sans-serif"
+      }}
+    >
       {/* Header */}
       <header className="bg-white shadow-sm border-b sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">
+        <div className="flex items-center h-16">
+          <img src="/timetrackr11_page.svg" alt="TimeTrackr11" className="h-10 ml-10" />
+          <div className="flex-1 mx-auto px-4">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-4">
+              {/* <h1 className="text-2xl font-bold text-gray-900">
                 {getCurrentViewTitle()}
-              </h1>
-              {currentView === 'dashboard' && (
+              </h1> 
+              {currentView === 'dashboard' && (*/}
                 <span className="text-sm text-gray-500">
                   {currentTime.toLocaleString('en-US', {
                     weekday: 'long',
@@ -396,8 +400,7 @@ const AdminDashboardPage = () => {
                     hour: '2-digit',
                     minute: '2-digit'
                   })}
-                </span>
-              )}
+                </span>          
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
@@ -410,12 +413,20 @@ const AdminDashboardPage = () => {
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200 text-sm font-medium"
+                  className="px-4 py-1 text-[#2E4A8A] rounded-[9px] hover:bg-[#2E4A8A] hover:text-white mr-2"
                 >
                   Logout
                 </button>
+                {/* <Link to="/profile"  */}
+                <button 
+                  onClick={() => navigateToView('profile')}
+                  className="px-4 py-1 group flex items-center justify-center">
+                  <img src="/profile.svg" alt="Profile Logo" className="h-12 block group-hover:hidden" />
+                  <img src="/profile_hover.svg" alt="Hover Profile Logo" className="h-12 hidden group-hover:block" />
+                </button>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </header>

@@ -239,7 +239,7 @@ const EmployeeManagement = ({ onBack }) => {
   const openEditModal = (employee) => {
     setSelectedEmployee({
       ...employee,
-      password: '' // Don't pre-fill password for security
+      password: '' 
     });
     setErrors({});
     setShowEditModal(true);
@@ -272,21 +272,19 @@ const EmployeeManagement = ({ onBack }) => {
 
   return (
     <div>
-      {/* Back Button */}
       <div className="mb-6">
         <button
           onClick={onBack}
-          className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center transition duration-200"
-        >
+          className="text-lg text-white hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
           ← Back to Dashboard
         </button>
       </div>
 
-      {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Employee Management</h2>
-          <p className="text-gray-600 mt-2">Manage employee accounts and information</p>
+          <h2 className="text-2xl font-bold text-gray-900"
+            style={{ textShadow: '2px 2px 4px white' }}>Employee Management</h2>
+          <p className="text-lg text-gray-300 mt-2">Manage employee accounts and information</p>
         </div>
         <button
           onClick={() => {
@@ -301,13 +299,13 @@ const EmployeeManagement = ({ onBack }) => {
             setErrors({});
             setShowAddModal(true);
           }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+          className="bg-[#2E4A8A] text-white px-4 py-2 rounded-lg shadow-md hover:bg-white hover:text-black transition duration-200"
         >
           Add Employee
         </button>
       </div>
 
-      {/* Statistics */}
+    
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center">
@@ -419,7 +417,6 @@ const EmployeeManagement = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Employee Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">Employees ({employees.length})</h3>
@@ -518,7 +515,7 @@ const EmployeeManagement = ({ onBack }) => {
         )}
       </div>
 
-      {/* Add Employee Modal */}
+      
       {showAddModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">

@@ -178,249 +178,347 @@ const MyProfile = ({ onBack }) => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      {/* Back Button */}
-      <div className="mb-6">
-        <button
-          onClick={onBack}
-          className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center transition duration-200"
-        >
-          ← Back to Dashboard
-        </button>
-      </div>
-
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">My Profile</h2>
-          <p className="text-gray-600 mt-2">Manage your personal information and account settings</p>
-        </div>
-        {!editMode && (
+    <main style={{
+                minHeight: "100vh",
+                width: "100%",
+                backgroundImage: "url('/background.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                fontFamily: "Afacad, sans-serif"
+              }}>
+      <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        {/* Back Button */}
+        <div className="mb-6">
           <button
-            onClick={() => setEditMode(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-          >
-            Edit Profile
+            onClick={onBack}
+            className="text-lg text-white hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
+            ← Back to Dashboard
           </button>
-        )}
-      </div>
+        </div>
 
-      {/* Profile Information */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-medium text-gray-900">Personal Information</h3>
-          {editMode && (
-            <div className="space-x-3">
+        {/* Header */}
+        <div className="flex justify-end items-center mb-8">
+          {/* <div>
+            <h2 className="text-2xl font-bold text-gray-900">My Profile</h2>
+            <p className="text-gray-600 mt-2">Manage your personal information and account settings</p>
+          </div> */}
+          {!editMode && (
+            <button
+              onClick={() => setEditMode(true)}
+              className="bg-[#2E4A8A] text-white px-4 py-2 rounded-lg shadow-md hover:bg-white hover:text-black transition duration-200"
+            >
+              Edit Profile
+            </button>
+          )}
+        </div>
+
+        {/* Profile Information */}
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-8">
+          <div className="flex justify-between items-center mb-6 pb-3"
+            style={{ 
+              borderBottom: "3px solid #2E4A8A",
+              boxShadow: "0 1px 0 rgba(0, 0, 0, 0.25)",
+             }}>
+            <h3 className="text-lg font-medium text-gray-900">Personal Information</h3>
+
+            {editMode && (
+              <div className="space-x-3">
+                <button
+                  onClick={handleCancelEdit}
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition duration-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveProfile}
+                  disabled={loading}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+                >
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {errors.submit && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+              {errors.submit}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Basic Information */}
+            <div className="space-y-4">
+              <div>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>Full Name</label>
+                {editMode ? (
+                  <input
+                    type="text"
+                    value={profileData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.name ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                  />
+                ) : (
+                  <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.name}</p>
+                )}
+                {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+              </div>
+
+              <div>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>Email</label>
+                {editMode ? (
+                  <input
+                    type="email"
+                    value={profileData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.email ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                  />
+                ) : (
+                  <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.email}</p>
+                )}
+                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+              </div>
+
+              <div>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>Phone Number</label>
+                {editMode ? (
+                  <input
+                    type="tel"
+                    value={profileData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.phone ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                  />
+                ) : (
+                  <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.phone || 'Not provided'}</p>
+                )}
+                {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+              </div>
+
+              <div>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>Address</label>
+                {editMode ? (
+                  <textarea
+                    value={profileData.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  />
+                ) : (
+                  <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.address || 'Not provided'}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Work Information & Emergency Contact */}
+            <div className="space-y-4">
+              <div>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>Employee ID</label>
+                <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.employeeId}</p>
+              </div>
+
+              <div>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>Department</label>
+                <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.department}</p>
+              </div>
+
+              <div>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>Role</label>
+                <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md capitalize">{profileData.role}</p>
+              </div>
+
+              <div>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>Emergency Contact</label>
+                {editMode ? (
+                  <input
+                    type="text"
+                    value={profileData.emergencyContact}
+                    onChange={(e) => handleInputChange('emergencyContact', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  />
+                ) : (
+                  <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.emergencyContact || 'Not provided'}</p>
+                )}
+              </div>
+
+              <div>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>Emergency Phone</label>
+                {editMode ? (
+                  <input
+                    type="tel"
+                    value={profileData.emergencyPhone}
+                    onChange={(e) => handleInputChange('emergencyPhone', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  />
+                ) : (
+                  <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.emergencyPhone || 'Not provided'}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Change Password Section */}
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-medium text-gray-900">Security Settings</h3>
+            <button
+              onClick={() => setShowPasswordForm(!showPasswordForm)}
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              {showPasswordForm ? 'Cancel' : 'Change Password'}
+            </button>
+          </div>
+
+          {showPasswordForm && (
+            <div className="max-w-md space-y-4">
+              {errors.password && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                  {errors.password}
+                </div>
+              )}
+
+              <div>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>Current Password</label>
+                <input
+                  type="password"
+                  value={passwordData.currentPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                    errors.currentPassword ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                />
+                {errors.currentPassword && <p className="mt-1 text-sm text-red-600">{errors.currentPassword}</p>}
+              </div>
+
+              <div>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>New Password</label>
+                <input
+                  type="password"
+                  value={passwordData.newPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                    errors.newPassword ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                />
+                {errors.newPassword && <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>}
+              </div>
+
+              <div>
+                <label style={{
+                    color: "#9A8E8E",
+                    fontFamily: "Afacad, sans-serif",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "normal",
+                    lineHeight: "normal",
+                  }}>Confirm New Password</label>
+                <input
+                  type="password"
+                  value={passwordData.confirmPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                    errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                />
+                {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
+              </div>
+
               <button
-                onClick={handleCancelEdit}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveProfile}
+                onClick={handleChangePassword}
                 disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200 disabled:opacity-50"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 disabled:opacity-50"
               >
-                {loading ? 'Saving...' : 'Save Changes'}
+                {loading ? 'Updating...' : 'Update Password'}
               </button>
             </div>
           )}
         </div>
-
-        {errors.submit && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-            {errors.submit}
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Basic Information */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-              {editMode ? (
-                <input
-                  type="text"
-                  value={profileData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.name ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                />
-              ) : (
-                <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.name}</p>
-              )}
-              {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-              {editMode ? (
-                <input
-                  type="email"
-                  value={profileData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.email ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                />
-              ) : (
-                <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.email}</p>
-              )}
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-              {editMode ? (
-                <input
-                  type="tel"
-                  value={profileData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.phone ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                />
-              ) : (
-                <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.phone || 'Not provided'}</p>
-              )}
-              {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
-              {editMode ? (
-                <textarea
-                  value={profileData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                />
-              ) : (
-                <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.address || 'Not provided'}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Work Information & Emergency Contact */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Employee ID</label>
-              <p className="text-gray-900 bg-blue-50 px-3 py-2 rounded-md font-medium text-blue-700">{profileData.employeeId}</p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-              <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.department}</p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
-              <p className="text-gray-900 bg-green-50 px-3 py-2 rounded-md capitalize text-green-700">{profileData.role}</p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Emergency Contact</label>
-              {editMode ? (
-                <input
-                  type="text"
-                  value={profileData.emergencyContact}
-                  onChange={(e) => handleInputChange('emergencyContact', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                />
-              ) : (
-                <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.emergencyContact || 'Not provided'}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Emergency Phone</label>
-              {editMode ? (
-                <input
-                  type="tel"
-                  value={profileData.emergencyPhone}
-                  onChange={(e) => handleInputChange('emergencyPhone', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                />
-              ) : (
-                <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">{profileData.emergencyPhone || 'Not provided'}</p>
-              )}
-            </div>
-          </div>
-        </div>
       </div>
-
-      {/* Change Password Section */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-medium text-gray-900">Security Settings</h3>
-          <button
-            onClick={() => setShowPasswordForm(!showPasswordForm)}
-            className="text-blue-600 hover:text-blue-700 font-medium"
-          >
-            {showPasswordForm ? 'Cancel' : 'Change Password'}
-          </button>
-        </div>
-
-        {showPasswordForm && (
-          <div className="max-w-md space-y-4">
-            {errors.password && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                {errors.password}
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
-              <input
-                type="password"
-                value={passwordData.currentPassword}
-                onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.currentPassword ? 'border-red-300' : 'border-gray-300'
-                }`}
-              />
-              {errors.currentPassword && <p className="mt-1 text-sm text-red-600">{errors.currentPassword}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-              <input
-                type="password"
-                value={passwordData.newPassword}
-                onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.newPassword ? 'border-red-300' : 'border-gray-300'
-                }`}
-              />
-              {errors.newPassword && <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
-              <input
-                type="password"
-                value={passwordData.confirmPassword}
-                onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-                }`}
-              />
-              {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
-            </div>
-
-            <button
-              onClick={handleChangePassword}
-              disabled={loading}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 disabled:opacity-50"
-            >
-              {loading ? 'Updating...' : 'Update Password'}
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+    </main>
   );
 };
 

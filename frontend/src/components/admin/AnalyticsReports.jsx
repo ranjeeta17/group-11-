@@ -11,11 +11,11 @@ const AnalyticsReports = ({ onBack }) => {
   const [generateLoading, setGenerateLoading] = useState(false);
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: '📊' },
-    { id: 'attendance', label: 'Attendance', icon: '👥' },
-    { id: 'leaves', label: 'Leave Analysis', icon: '📝' },
-    { id: 'overtime', label: 'Overtime', icon: '⏰' },
-    { id: 'departments', label: 'Departments', icon: '🏢' }
+    { id: 'overview', label: 'Overview' },
+    { id: 'attendance', label: 'Attendance' },
+    { id: 'leaves', label: 'Leave Analysis' },
+    { id: 'overtime', label: 'Overtime' },
+    { id: 'departments', label: 'Departments' }
   ];
 
   const reportTypes = [
@@ -385,17 +385,19 @@ const AnalyticsReports = ({ onBack }) => {
   return (
     <div className="space-y-8">
       {/* Header */}
+      <div className="mb-6">
+        <button
+          onClick={onBack}
+          className="text-lg text-white hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
+          ← Back to Dashboard
+        </button>
+      </div>
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Analytics & Reports</h2>
-          <p className="mt-1 text-sm text-gray-500">View employee analytics and generate reports</p>
+          <h2 className="text-2xl font-bold text-gray-900"
+            style={{ textShadow: '2px 2px 4px white' }}>Analytics & Reports</h2>
+          <p className="text-lg text-gray-300 mt-2">View employee analytics and generate reports</p>
         </div>
-        <button 
-          onClick={onBack} 
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-        >
-          Back
-        </button>
       </div>
 
       {/* Tabs */}
@@ -405,13 +407,11 @@ const AnalyticsReports = ({ onBack }) => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center px-1 py-4 text-sm font-medium border-b-2 ${
+              className={`flex items-center px-4 py-4 text-lg font-medium border-b-2 ${
                 activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <span className="mr-2">{tab.icon}</span>
+                  ? 'bg-white text-[#2E4A8A] text-lg font-semibold rounded-t-lg px-3'
+                  : 'border-transparent text-white hover:text-[#2E4A8A] hover:border-gray-300'
+              }`}>
               {tab.label}
             </button>
           ))}
@@ -424,7 +424,7 @@ const AnalyticsReports = ({ onBack }) => {
           <select 
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+            className="bg-white text-black px-4 py-2 rounded-lg shadow-md transition duration-200"
           >
             <option value="today">Today</option>
             <option value="this_week">This Week</option>
@@ -438,7 +438,7 @@ const AnalyticsReports = ({ onBack }) => {
           <select 
             value={reportType}
             onChange={(e) => setReportType(e.target.value)}
-            className="rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+            className="bg-white text-black px-4 py-2 rounded-lg shadow-md transition duration-200"
           >
             {reportTypes.map((type) => (
               <option key={type.value} value={type.value}>{type.label}</option>
@@ -447,8 +447,7 @@ const AnalyticsReports = ({ onBack }) => {
           <button
             onClick={generateReport}
             disabled={generateLoading}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
-          >
+            className="bg-[#2E4A8A] text-white px-4 py-2 rounded-lg shadow-md hover:bg-white hover:text-black transition duration-200">
             {generateLoading ? 'Generating...' : 'Generate Report'}
           </button>
         </div>
