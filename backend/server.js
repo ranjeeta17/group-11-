@@ -882,6 +882,48 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString(), uptime: process.uptime() });
 });
 
+
+// --- SHIFTS (Assignment2-style) ---
+const {
+  getAllShifts,
+  getMyShifts,
+  assignShift,
+  adminUpdateShift,
+  updateShiftStatus,
+  deleteShift,
+  getShiftStats,
+  getShiftInfo
+} = require('./controllers/shiftController');
+
+// Public
+app.get('/api/shifts/info', getShiftInfo);
+// Diagnostics
+app.get('/api/shifts/ping', (req, res) => {
+  res.json({ ok: true, message: 'shifts route reachable' });
+});
+
+// User-protected
+app.get('/api/shifts/my', authenticateToken, getMyShifts);
+app.put('/api/shifts/:id/status', authenticateToken, updateShiftStatus);
+// Assignment2-style alias
+app.get('/api/shifts/user', authenticateToken, getMyShifts);
+
+// Admin-protected
+app.get('/api/shifts/all', authenticateToken, requireAdmin, getAllShifts);
+app.post('/api/shifts/assign', authenticateToken, requireAdmin, assignShift);
+app.put('/api/shifts/:id', authenticateToken, requireAdmin, adminUpdateShift);
+app.delete('/api/shifts/:id', authenticateToken, requireAdmin, deleteShift);
+app.get('/api/shifts/stats', authenticateToken, requireAdmin, getShiftStats);
+// Assignment2-style aliases
+app.get('/api/shifts', authenticateToken, requireAdmin, getAllShifts);
+app.post('/api/shifts', authenticateToken, requireAdmin, assignShift);
+
+// Catch-all 404 (keep after routes)
+app.use((req, res) => {
+  console.warn(`\u26A0\uFE0F  404 Not Found: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ success: false, message: 'Route not found' });
+});
+
 // --- Database Connection ---
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/attendance_system', {
   useNewUrlParser: true,
