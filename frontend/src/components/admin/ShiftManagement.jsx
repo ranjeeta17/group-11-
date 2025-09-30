@@ -266,8 +266,9 @@ const ShiftManagement = ({ onBack }) => {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Shift Management</h2>
-          <p className="text-gray-300 mt-2">Manage employee shifts and schedules</p>
+          <h2 className="text-2xl font-bold text-gray-900"
+            style={{ textShadow: '2px 2px 4px white' }}>Shift Management</h2>
+          <p className="text-lg text-gray-300 mt-2">Manage employee shifts and schedules</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}

@@ -201,8 +201,9 @@ const LeaveManagement = ({ onBack }) => {
 
       {/* Page Header */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900">Leave Management</h2>
-        <p className="text-gray-300 mt-2">Manage employee leave requests and track statistics</p>
+        <h2 className="text-2xl font-bold text-gray-900"
+          style={{ textShadow: '2px 2px 4px white' }}>Leave Management</h2>
+        <p className="text-lg text-gray-300 mt-2">Manage employee leave requests and track statistics</p>
       </div>
 
       {/* Statistics Cards */}

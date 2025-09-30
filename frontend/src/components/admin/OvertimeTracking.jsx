@@ -229,8 +229,9 @@ const OvertimeTracking = ({ onBack }) => {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Overtime Tracking</h2>
-          <p className="text-gray-300 mt-2">Monitor and approve employee overtime hours</p>
+          <h2 className="text-2xl font-bold text-gray-900"
+            style={{ textShadow: '2px 2px 4px white' }}>Overtime Tracking</h2>
+          <p className="text-lg text-gray-300 mt-2">Monitor and approve employee overtime hours</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}

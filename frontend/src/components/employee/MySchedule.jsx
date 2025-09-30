@@ -137,8 +137,7 @@ const MySchedule = ({ onBack }) => {
       <div className="mb-6">
         <button
           onClick={onBack}
-          className="text-gray-100 hover:text-gray-300 font-medium inline-flex items-center transition duration-200"
-        >
+          className="text-lg text-white hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
           ← Back to Dashboard
         </button>
       </div>
@@ -146,8 +145,9 @@ const MySchedule = ({ onBack }) => {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">My Schedule</h2>
-          <p className="text-gray-300 mt-2">View your weekly work schedule and upcoming shifts</p>
+          <h2 className="text-2xl font-bold text-gray-900"
+            style={{ textShadow: '2px 2px 4px white' }}>My Schedule</h2>
+          <p className="text-lg text-gray-300 mt-2">View your weekly work schedule and upcoming shifts</p>
         </div>
         
         {/* Week Navigation */}

@@ -394,8 +394,9 @@ const AnalyticsReports = ({ onBack }) => {
       </div>
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Analytics & Reports</h2>
-          <p className="text-gray-300 mt-2">View employee analytics and generate reports</p>
+          <h2 className="text-2xl font-bold text-gray-900"
+            style={{ textShadow: '2px 2px 4px white' }}>Analytics & Reports</h2>
+          <p className="text-lg text-gray-300 mt-2">View employee analytics and generate reports</p>
         </div>
       </div>
 
