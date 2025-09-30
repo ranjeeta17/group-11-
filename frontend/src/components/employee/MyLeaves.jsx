@@ -250,7 +250,7 @@ const MyLeaves = ({ onBack }) => {
           </div>
           <button
             onClick={() => setShowApplyModal(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+            className="bg-[#2E4A8A] text-white px-4 py-2 rounded-lg shadow-md hover:bg-white hover:text-black transition duration-200"
           >
             Apply for Leave
           </button>
