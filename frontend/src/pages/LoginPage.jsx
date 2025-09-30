@@ -55,15 +55,15 @@ const LoginPage = () => {
               }}
               className="min-h-screen flex items-center justify-center bg-slate-900">
       <div style={{
-            width: "974px",
-            height: "593px",
+            width: "60%",
+            height: "35%",
             flexShrink: 0,
             borderRadius: "9px",
             background: "#FFF",
             boxShadow:
               "0 -5px 10px 3px rgba(154, 154, 154, 0.25), 0 5px 10px 3px rgba(154, 154, 154, 0.25), -5px 0 10px 3px rgba(154, 154, 154, 0.25), 5px 0 10px 3px rgba(154, 154, 154, 0.25)"
           }}
-          className="grid grid-cols-[564px_410px] overflow-hidden"
+          className="grid grid-cols-[55%_45%] overflow-hidden"
         >
         {/* Left */}
         <section className="p-10">
@@ -103,7 +103,7 @@ const LoginPage = () => {
                 required
                 placeholder="Enter your email"
                 style={{
-                      width: "458px",
+                      width: "100%",
                       height: "50px",
                       flexShrink: 0,
                       borderRadius: "9px",
@@ -132,7 +132,7 @@ const LoginPage = () => {
                 required
                 placeholder="Enter your password"
                 style={{
-                      width: "458px",
+                      width: "100%",
                       height: "50px",
                       flexShrink: 0,
                       borderRadius: "9px",
@@ -148,7 +148,7 @@ const LoginPage = () => {
               type="submit"
               disabled={loading}
               style={{
-                        width: "458px",
+                        width: "100%",
                         height: "50px",
                         flexshrink: 0,
                         borderRadius: "9px",
@@ -195,7 +195,7 @@ const LoginPage = () => {
           </div>
 
           <div
-            className="w-[356px] h-[280px] flex-shrink-0 rounded-[10px] border-2 border-black"
+            className="w-full h-90% flex-shrink-0 rounded-[10px] border-2 border-black"
             style={{
               aspectRatio: "89 / 70",
               background: "rgba(116, 151, 175, 0.46)"
