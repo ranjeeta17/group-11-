@@ -29,6 +29,44 @@ const AdminDashboardPage = () => {
     overtimeHours: 0,            // this week
     systemUptime: '—'
   });
+  
+  // const [recentActivities, setRecentActivities] = useState([
+  //   {
+  //     id: 1,
+  //     icon: '👤',
+  //     message: 'Sarah Johnson registered as new employee',
+  //     time: '2 minutes ago',
+  //     type: 'registration'
+  //   },
+  //   {
+  //     id: 2,
+  //     icon: '📝',
+  //     message: 'Mike Chen submitted leave request for Dec 25-27',
+  //     time: '15 minutes ago',
+  //     type: 'leave'
+  //   },
+  //   {
+  //     id: 3,
+  //     icon: '✅',
+  //     message: 'Alice Brown checked in at 9:15 AM',
+  //     time: '32 minutes ago',
+  //     type: 'attendance'
+  //   },
+  //   {
+  //     id: 4,
+  //     icon: '⏰',
+  //     message: 'David Lee worked 2 hours overtime yesterday',
+  //     time: '1 hour ago',
+  //     type: 'overtime'
+  //   },
+  //   {
+  //     id: 5,
+  //     icon: '🎯',
+  //     message: 'Weekly attendance report generated',
+  //     time: '2 hours ago',
+  //     type: 'report'
+  //   }
+  // ]);
 
   const [recentActivities] = useState([
     { id: 1, icon: '👤', message: 'Sarah Johnson registered as new employee', time: '2 minutes ago', type: 'registration' },
@@ -123,35 +161,71 @@ const AdminDashboardPage = () => {
     navigate('/login');
   };
 
+  const navigateToView = (view) => {
+    setCurrentView(view);
+  };
+
   const quickActions = [
-    { icon: '👥', title: 'Employee Management', description: 'Add, edit, or manage employee accounts', count: stats.totalEmployees, color: 'blue', action: () => setCurrentView('employees') },
-    { icon: '📝', title: 'Leave Requests', description: 'Review and approve pending leave requests', count: stats.pendingLeaveRequests, color: 'yellow', action: () => setCurrentView('leaves') },
-    { icon: '📅', title: 'Shift Management', description: 'Assign and schedule employee shifts', count: '24/7', color: 'green', action: () => setCurrentView('shifts') },
-    { icon: '⏰', title: 'Overtime Tracking', description: 'Monitor and approve overtime hours', count: `${stats.overtimeHours}h`, color: 'purple', action: () => setCurrentView('overtime') },
-    { icon: '📊', title: 'Analytics & Reports', description: 'Generate detailed attendance reports', count: 'View', color: 'indigo', action: () => setCurrentView('analytics') },
-    { icon: '⚙️', title: 'System Settings', description: 'Configure system preferences', count: 'Config', color: 'gray', action: () => setCurrentView('settings') }
+    {
+      icon: <img src="/emplyee.svg" alt="employee management" className="h-20" />,
+      title: 'Employee Management',
+      description: 'Add, edit, or manage employee accounts',
+      count: stats.totalEmployees,
+      color: 'blue',
+      action: () => setCurrentView('employees')
+    },
+    {
+      icon: <img src="/leaveRequest.svg" alt="leave request" className="h-20" />,
+      title: 'Leave Requests',
+      description: 'Review and approve pending leave requests',
+      count: stats.pendingLeaveRequests,
+      color: 'blue',
+      action: () => setCurrentView('leaves')
+    },
+    {
+      icon: <img src="/calendar.svg" alt="calendar" className="h-20" />,
+      title: 'Shift Management',
+      description: 'Assign and schedule employee shifts',
+      count: '24/7',
+      color: 'blue',
+      action: () => setCurrentView('shifts')
+    },
+    {
+      icon: <img src="/overtime.svg" alt="overtime" className="h-20" />,
+      title: 'Overtime Tracking',
+      description: 'Monitor and approve overtime hours',
+      count: `${stats.overtimeHours}h`,
+      color: 'blue',
+      action: () => setCurrentView('overtime')
+    },
+    {
+      icon: '📊',
+      title: 'Analytics & Reports',
+      description: 'Generate detailed attendance reports',
+      count: 'View',
+      color: 'blue',
+      action: () => setCurrentView('analytics')
+    },
+    // {
+    //   icon: '⚙️',
+    //   title: 'System Settings',
+    //   description: 'Configure system preferences',
+    //   count: 'Config',
+    //   color: 'blue',
+    //   action: () => setCurrentView('settings')
+    // }
   ];
 
   const getColorClasses = (color) => {
     const colors = {
-      blue: 'bg-blue-50 border-blue-200 text-blue-700',
-      yellow: 'bg-yellow-50 border-yellow-200 text-yellow-700',
-      green: 'bg-green-50 border-green-200 text-green-700',
-      purple: 'bg-purple-50 border-purple-200 text-purple-700',
-      indigo: 'bg-indigo-50 border-indigo-200 text-indigo-700',
-      gray: 'bg-gray-50 border-gray-200 text-gray-700'
+      blue: 'bg-gray-50 border-[#2E4A8A]]-800 text-black'
     };
     return colors[color] || colors.blue;
   };
 
   const getButtonColorClasses = (color) => {
     const colors = {
-      blue: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-300',
-      yellow: 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-300',
-      green: 'bg-green-600 hover:bg-green-700 focus:ring-green-300',
-      purple: 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-300',
-      indigo: 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-300',
-      gray: 'bg-gray-600 hover:bg-gray-700 focus:ring-gray-300'
+      blue: 'bg-[#2E4A8A] text-white hover:bg-[#1b2a4a]'
     };
     return colors[color] || colors.blue;
   };
@@ -227,8 +301,8 @@ const AdminDashboardPage = () => {
         </div>
       </div>
 
-    
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        {/* Quick Actions */}
         <div className="xl:col-span-2">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h2>
@@ -264,7 +338,7 @@ const AdminDashboardPage = () => {
         </div>
 
         {/* Recent Activities */}
-        <div className="xl:col-span-1">
+        {/* <div className="xl:col-span-1">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
@@ -285,10 +359,10 @@ const AdminDashboardPage = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* System Status */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+          {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">System Status</h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -318,10 +392,10 @@ const AdminDashboardPage = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
-      {/* Admin Profile Card (unchanged) */}
+      {/* Admin Profile Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-8">
         <h2 className="text-xl font-semibold text-gray-900 mb-6 pb-4 border-b border-gray-200">
           Administrator Profile
@@ -418,9 +492,16 @@ const AdminDashboardPage = () => {
                 <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">Administrator</span>
                 <button
                   onClick={handleLogout}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200 text-sm font-medium"
+                  className="px-4 py-1 text-[#2E4A8A] rounded-[9px] hover:bg-[#2E4A8A] hover:text-white mr-2"
                 >
                   Logout
+                </button>
+                {/* <Link to="/profile"  */}
+                <button 
+                  onClick={() => navigateToView('profile')}
+                  className="px-4 py-1 group flex items-center justify-center">
+                  <img src="/profile.svg" alt="Profile Logo" className="h-12 block group-hover:hidden" />
+                  <img src="/profile_hover.svg" alt="Hover Profile Logo" className="h-12 hidden group-hover:block" />
                 </button>
               </div>
             </div>
