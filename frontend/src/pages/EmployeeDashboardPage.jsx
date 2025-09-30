@@ -251,7 +251,13 @@ useEffect(() => {
     <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
     
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"> 
-           <div className="lg:col-span-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white p-6"> 
+           <div className="lg:col-span-2 rounded-xl text-white p-6"
+            style={{
+              backgroundImage: 'url(/background.png)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}> 
             <div className="flex items-center justify-between"> <div> 
               <h2 className="text-xl font-semibold mb-2">Today's Schedule</h2> 
               <div className="space-y-1 text-blue-100"> <p>
@@ -260,8 +266,9 @@ useEffect(() => {
                 <p><span className="font-medium">Break:</span> {todaySchedule.breakTime}</p> <p><span className="font-medium">Worked:</span> {todayWorkTime}</p> 
                 </div> 
                 </div> 
-                <div className="text-right"> <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-2">
-                   <span className="text-3xl">📅</span> </div> <span className="bg-green-400 bg-opacity-80 px-3 py-1 rounded-full text-xs font-medium"> {todaySchedule.status} </span> 
+                <div className="text-right"> 
+                  {/* <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-2">
+                   <span className="text-3xl">📅</span> </div> <span className="bg-green-400 bg-opacity-80 px-3 py-1 rounded-full text-xs font-medium"> {todaySchedule.status} </span>  */}
                    </div> 
                    </div>
                     </div>  

@@ -1,33 +1,29 @@
-// src/pages/AdminDashboardPage.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+// Import all management components
 import LeaveManagement from '../components/admin/LeaveManagement';
 import EmployeeManagement from '../components/admin/EmployeeManagement';
 import ShiftManagement from '../components/admin/ShiftManagement';
 import OvertimeTracking from '../components/admin/OvertimeTracking';
 import AnalyticsReports from '../components/admin/AnalyticsReports';
 import SystemSettings from '../components/admin/SystemSettings';
-import axiosInstance from '../axiosConfig';
 
 const AdminDashboardPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  const [currentView, setCurrentView] = useState('dashboard');
+  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'leaves', 'employees', etc.
   const [currentTime, setCurrentTime] = useState(new Date());
-
-  const [loadingTiles, setLoadingTiles] = useState(true);
-  const [tilesError, setTilesError] = useState('');
-
   const [stats, setStats] = useState({
-    totalEmployees: 0,
-    presentToday: 0,
-    onLeave: 0,
-    pendingLeaveRequests: 0,
-    overtimeHours: 0,            // this week
-    systemUptime: '—'
+    totalEmployees: 156,
+    presentToday: 142,
+    onLeave: 8,
+    lateArrivals: 6,
+    pendingLeaveRequests: 12,
+    overtimeHours: 45,
+    newRegistrations: 3,
+    systemUptime: '99.8%'
   });
   
   // const [recentActivities, setRecentActivities] = useState([
@@ -68,93 +64,13 @@ const AdminDashboardPage = () => {
   //   }
   // ]);
 
-  const [recentActivities] = useState([
-    { id: 1, icon: '👤', message: 'Sarah Johnson registered as new employee', time: '2 minutes ago', type: 'registration' },
-    { id: 2, icon: '📝', message: 'Mike Chen submitted leave request for Dec 25-27', time: '15 minutes ago', type: 'leave' },
-    { id: 3, icon: '✅', message: 'Alice Brown checked in at 9:15 AM', time: '32 minutes ago', type: 'attendance' },
-    { id: 4, icon: '⏰', message: 'David Lee worked 2 hours overtime yesterday', time: '1 hour ago', type: 'overtime' },
-    { id: 5, icon: '🎯', message: 'Weekly attendance report generated', time: '2 hours ago', type: 'report' }
-  ]);
-
-  // tick clock each minute
+  // Update time every minute
   useEffect(() => {
-    const t = setInterval(() => setCurrentTime(new Date()), 60_000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
   }, []);
-
-  // ---- Helpers for date ranges ----
-  const todayISO = useMemo(() => {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = `${d.getMonth() + 1}`.padStart(2, '0');
-    const da = `${d.getDate()}`.padStart(2, '0');
-    return `${y}-${m}-${da}`; // YYYY-MM-DD
-  }, []);
-
-  const weekRange = useMemo(() => {
-    // Monday -> Sunday in local time
-    const now = new Date();
-    const day = now.getDay() || 7; // 1..7 (Mon..Sun)
-    const monday = new Date(now);
-    monday.setHours(0, 0, 0, 0);
-    monday.setDate(now.getDate() - (day - 1));
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    sunday.setHours(23, 59, 59, 999);
-
-    const toISO = (d) => d.toISOString().slice(0, 10);
-    return { from: toISO(monday), to: toISO(sunday) };
-  }, []);
-
-  // ---- Fetch & compute tiles from APIs ----
-  useEffect(() => {
-    const loadTiles = async () => {
-      setLoadingTiles(true);
-      setTilesError('');
-
-      try {
-        // employees + leaves + presentToday
-        const [empRes, leavesRes, presentRes] = await Promise.all([
-          axiosInstance.get('/api/auth/employees'),
-          axiosInstance.get('/api/leaves/admin/leaves', { params: { page: 1, limit: 200 } }),
-          axiosInstance.get('/api/admin/present-today')
-        ]);
-
-        const totalEmployees = empRes?.data?.employees?.length || 0;
-
-        const leaves = leavesRes?.data?.leaves || [];
-        const today = new Date(todayISO);
-        const onLeave = leaves.filter(l =>
-          l.status === 'approved' &&
-          new Date(l.startDate) <= today &&
-          new Date(l.endDate) >= today
-        ).length;
-        const pendingLeaveRequests = leaves.filter(l => l.status === 'pending').length;
-
-        const presentToday = presentRes?.data?.count ?? 0;
-
-        const overtimeHours = 0; // placeholder, add later
-
-        setStats(prev => ({
-          ...prev,
-          totalEmployees,
-          presentToday,
-          onLeave,
-          pendingLeaveRequests,
-          overtimeHours,
-          systemUptime: '99.8%'
-        }));
-      } catch (err) {
-        console.error('Admin tiles load error:', err);
-        setTilesError(err?.response?.data?.message || 'Failed to load dashboard data');
-      } finally {
-        setLoadingTiles(false);
-      }
-    };
-
-
-    loadTiles();
-  }, [todayISO, weekRange.from, weekRange.to]);
 
   const handleLogout = () => {
     logout();
@@ -230,6 +146,27 @@ const AdminDashboardPage = () => {
     return colors[color] || colors.blue;
   };
 
+  // Function to render different views
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'leaves':
+        return <LeaveManagement onBack={() => setCurrentView('dashboard')} />;
+      case 'employees':
+        return <EmployeeManagement onBack={() => setCurrentView('dashboard')} />;
+      case 'shifts':
+        return <ShiftManagement onBack={() => setCurrentView('dashboard')} />;
+      case 'overtime':
+        return <OvertimeTracking onBack={() => setCurrentView('dashboard')} />;
+      case 'analytics':
+        return <AnalyticsReports onBack={() => setCurrentView('dashboard')} />;
+      case 'settings':
+        return <SystemSettings onBack={() => setCurrentView('dashboard')} />;
+      default:
+        return renderDashboardView();
+    }
+  };
+
+  // Main dashboard view
   const renderDashboardView = () => (
     <>
       {/* Stats Overview */}
@@ -238,9 +175,7 @@ const AdminDashboardPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Employees</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {loadingTiles ? '—' : stats.totalEmployees}
-              </p>
+              <p className="text-3xl font-bold text-gray-900">{stats.totalEmployees}</p>
               <p className="text-xs text-green-600 mt-1">↗ +3 this month</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -253,14 +188,8 @@ const AdminDashboardPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Present Today</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {loadingTiles ? '—' : stats.presentToday}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {loadingTiles || stats.totalEmployees === 0
-                  ? '—'
-                  : `${((stats.presentToday / stats.totalEmployees) * 100).toFixed(1)}% attendance`}
-              </p>
+              <p className="text-3xl font-bold text-gray-900">{stats.presentToday}</p>
+              <p className="text-xs text-gray-500 mt-1">{((stats.presentToday / stats.totalEmployees) * 100).toFixed(1)}% attendance</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
               <span className="text-2xl">✅</span>
@@ -272,12 +201,8 @@ const AdminDashboardPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">On Leave</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {loadingTiles ? '—' : stats.onLeave}
-              </p>
-              <p className="text-xs text-yellow-600 mt-1">
-                {loadingTiles ? '—' : `${stats.pendingLeaveRequests} pending requests`}
-              </p>
+              <p className="text-3xl font-bold text-gray-900">{stats.onLeave}</p>
+              <p className="text-xs text-yellow-600 mt-1">{stats.pendingLeaveRequests} pending requests</p>
             </div>
             <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
               <span className="text-2xl">📝</span>
@@ -289,9 +214,7 @@ const AdminDashboardPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Overtime Hours</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {loadingTiles ? '—' : stats.overtimeHours}
-              </p>
+              <p className="text-3xl font-bold text-gray-900">{stats.overtimeHours}</p>
               <p className="text-xs text-purple-600 mt-1">This week</p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
@@ -316,9 +239,7 @@ const AdminDashboardPage = () => {
                   <div className="flex items-start justify-between mb-4">
                     <div className="text-3xl">{action.icon}</div>
                     <div className="text-right">
-                      <span className="text-2xl font-bold">
-                        {action.title === 'Overtime Tracking' && loadingTiles ? '—' : action.count}
-                      </span>
+                      <span className="text-2xl font-bold">{action.count}</span>
                     </div>
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-2">{action.title}</h3>
@@ -331,9 +252,6 @@ const AdminDashboardPage = () => {
                 </div>
               ))}
             </div>
-            {tilesError && (
-              <div className="mt-4 text-sm text-red-600">Error: {tilesError}</div>
-            )}
           </div>
         </div>
 
@@ -430,35 +348,25 @@ const AdminDashboardPage = () => {
     </>
   );
 
-  const renderCurrentView = () => {
-    switch (currentView) {
-      case 'leaves':
-        return <LeaveManagement onBack={() => setCurrentView('dashboard')} />;
-      case 'employees':
-        return <EmployeeManagement onBack={() => setCurrentView('dashboard')} />;
-      case 'shifts':
-        return <ShiftManagement onBack={() => setCurrentView('dashboard')} />;
-      case 'overtime':
-        return <OvertimeTracking onBack={() => setCurrentView('dashboard')} />;
-      case 'analytics':
-        return <AnalyticsReports onBack={() => setCurrentView('dashboard')} />;
-      case 'settings':
-        return <SystemSettings onBack={() => setCurrentView('dashboard')} />;
-      default:
-        return renderDashboardView();
-    }
-  };
-
+  // Get current view title for header
   const getCurrentViewTitle = () => {
     switch (currentView) {
-      case 'dashboard': return 'Admin Dashboard';
-      case 'leaves': return 'Leave Management';
-      case 'employees': return 'Employee Management';
-      case 'shifts': return 'Shift Management';
-      case 'overtime': return 'Overtime Tracking';
-      case 'analytics': return 'Analytics & Reports';
-      case 'settings': return 'System Settings';
-      default: return 'Admin Dashboard';
+      case 'dashboard':
+        return 'Admin Dashboard';
+      case 'leaves':
+        return 'Leave Management';
+      case 'employees':
+        return 'Employee Management';
+      case 'shifts':
+        return 'Shift Management';
+      case 'overtime':
+        return 'Overtime Tracking';
+      case 'analytics':
+        return 'Analytics & Reports';
+      case 'settings':
+        return 'System Settings';
+      default:
+        return 'Admin Dashboard';
     }
   };
 
@@ -469,7 +377,9 @@ const AdminDashboardPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">{getCurrentViewTitle()}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {getCurrentViewTitle()}
+              </h1>
               {currentView === 'dashboard' && (
                 <span className="text-sm text-gray-500">
                   {currentTime.toLocaleString('en-US', {
@@ -489,7 +399,9 @@ const AdminDashboardPage = () => {
                 <p className="text-xs text-gray-500">{user?.department} • {user?.employeeId}</p>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">Administrator</span>
+                <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">
+                  Administrator
+                </span>
                 <button
                   onClick={handleLogout}
                   className="px-4 py-1 text-[#2E4A8A] rounded-[9px] hover:bg-[#2E4A8A] hover:text-white mr-2"

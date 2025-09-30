@@ -114,12 +114,21 @@ console.log('My records (no filters):', data);
   }
 
   return (
+  <main style={{
+              minHeight: "100vh",
+              width: "100%",
+              backgroundImage: "url('/background.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              fontFamily: "Afacad, sans-serif"
+            }}>
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       {/* Back Button */}
       <div className="mb-6 flex items-center justify-between">
         <button
           onClick={onBack}
-          className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center transition duration-200"
+          className="text-gray-100 hover:text-gray-300 font-medium inline-flex items-center transition duration-200"
         >
           ← Back to Dashboard
         </button>
@@ -128,7 +137,7 @@ console.log('My records (no filters):', data);
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900">My Time Records</h2>
-        <p className="text-gray-600 mt-1">Your login and logout sessions and durations (Brisbane time)</p>
+        <p className="text-gray-300 mt-1">Your login and logout sessions and durations (Brisbane time)</p>
       </div>
 
       {/* Month/Year Filter */}
@@ -258,6 +267,7 @@ console.log('My records (no filters):', data);
         </div>
       </div>
     </div>
+  </main>
   );
 };
 
