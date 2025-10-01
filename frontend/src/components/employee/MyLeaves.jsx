@@ -222,16 +222,7 @@ const MyLeaves = ({ onBack }) => {
   }
 
   return (
-  <main style={{
-              minHeight: "100vh",
-              width: "100%",
-              backgroundImage: "url('/background.png')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              fontFamily: "Afacad, sans-serif"
-            }}>
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div className="bg-white max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <div className="mb-6">
           <button
@@ -555,7 +546,6 @@ const MyLeaves = ({ onBack }) => {
           </div>
         )}
       </div>
-    </main>
   );
 };
 
