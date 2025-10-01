@@ -29,12 +29,103 @@ const EmployeeDashboardPage = () => {
   });
 
   const [todaySchedule, setTodaySchedule] = useState({
-    shift: 'Morning Shift',
-    startTime: '09:00 AM',
-    endTime: '05:00 PM',
-    breakTime: '12:00 PM - 01:00 PM',
-    status: 'In Progress'
+  shift: '—',
+  startTime: '—',
+  endTime: '—',
+  breakTime: '—',
+  status: 'No shift'
+});
+
+function to12h(dt) {
+  const d = new Date(dt);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // e.g., 09:00 AM
+}
+
+function isSameLocalDay(a, b = new Date()) {
+  const da = new Date(a), db = new Date(b);
+  return da.getFullYear() === db.getFullYear()
+    && da.getMonth() === db.getMonth()
+    && da.getDate() === db.getDate();
+}
+
+function pickTodaysShift(list) {
+  const now = Date.now();
+  const todays = list.filter(s => isSameLocalDay(s.startTime));
+  if (todays.length === 0) return null;
+
+  // current shift first
+  const current = todays.find(s => {
+    const st = new Date(s.startTime).getTime();
+    const en = new Date(s.endTime).getTime();
+    return now >= st && now <= en;
   });
+  if (current) return current;
+
+  // else next upcoming today
+  const upcoming = todays
+    .filter(s => new Date(s.startTime).getTime() > now)
+    .sort((a, b) => new Date(a.startTime) - new Date(b.startTime))[0];
+
+  return upcoming || null;
+}
+useEffect(() => {
+  let mounted = true;
+
+  const loadTodayShift = async () => {
+    try {
+      const { data } = await axiosInstance.get('/api/shifts/my');
+      const shifts = Array.isArray(data) ? data : (data?.shifts || []);
+
+      const pick = pickTodaysShift(shifts);
+      if (!mounted) return;
+
+      if (pick) {
+        const status =
+          (Date.now() >= new Date(pick.startTime).getTime() &&
+           Date.now() <= new Date(pick.endTime).getTime())
+            ? 'In Progress'
+            : (new Date(pick.startTime).getTime() > Date.now() ? 'Upcoming' : (pick.status || 'Scheduled'));
+
+        setTodaySchedule({
+          shift: (pick.shiftType || 'Shift').replace(/^\w/, c => c.toUpperCase()), // e.g., morning → Morning
+          startTime: to12h(pick.startTime),
+          endTime: to12h(pick.endTime),
+          breakTime: pick.breakStart && pick.breakEnd
+            ? `${to12h(pick.breakStart)} - ${to12h(pick.breakEnd)}`
+            : '—',
+          status
+        });
+      } else {
+        setTodaySchedule({
+          shift: '—',
+          startTime: '—',
+          endTime: '—',
+          breakTime: '—',
+          status: 'No shift'
+        });
+      }
+    } catch (err) {
+      console.error('Failed to load my shifts:', err);
+      if (!mounted) return;
+      setTodaySchedule({
+        shift: '—',
+        startTime: '—',
+        endTime: '—',
+        breakTime: '—',
+        status: 'No shift'
+      });
+    }
+  };
+
+  loadTodayShift();
+
+  // Optional: refresh today’s shift every 5 minutes
+  const t = setInterval(loadTodayShift, 5 * 60 * 1000);
+  return () => {
+    mounted = false;
+    clearInterval(t);
+  };
+}, []);
 
   const [recentActivities, setRecentActivities] = useState([
     {

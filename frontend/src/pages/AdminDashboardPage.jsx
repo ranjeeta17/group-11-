@@ -10,65 +10,98 @@ import OvertimeTracking from '../components/admin/OvertimeTracking';
 import AnalyticsReports from '../components/admin/AnalyticsReports';
 import SystemSettings from '../components/admin/SystemSettings';
 
+const API_BASE = 'http://localhost:5001';
+
+// helpers to build a YYYY-MM-DD range (this month)
+function toYYYYMMDD(d) {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+function getThisMonthRange() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return { from: toYYYYMMDD(start), to: toYYYYMMDD(end) };
+}
+
 const AdminDashboardPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'leaves', 'employees', etc.
+  const [currentView, setCurrentView] = useState('dashboard');
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [stats, setStats] = useState({
-    totalEmployees: 156,
-    presentToday: 142,
-    onLeave: 8,
-    lateArrivals: 6,
-    pendingLeaveRequests: 12,
-    overtimeHours: 45,
-    newRegistrations: 3,
-    systemUptime: '99.8%'
-  });
-  
-  // const [recentActivities, setRecentActivities] = useState([
-  //   {
-  //     id: 1,
-  //     icon: '👤',
-  //     message: 'Sarah Johnson registered as new employee',
-  //     time: '2 minutes ago',
-  //     type: 'registration'
-  //   },
-  //   {
-  //     id: 2,
-  //     icon: '📝',
-  //     message: 'Mike Chen submitted leave request for Dec 25-27',
-  //     time: '15 minutes ago',
-  //     type: 'leave'
-  //   },
-  //   {
-  //     id: 3,
-  //     icon: '✅',
-  //     message: 'Alice Brown checked in at 9:15 AM',
-  //     time: '32 minutes ago',
-  //     type: 'attendance'
-  //   },
-  //   {
-  //     id: 4,
-  //     icon: '⏰',
-  //     message: 'David Lee worked 2 hours overtime yesterday',
-  //     time: '1 hour ago',
-  //     type: 'overtime'
-  //   },
-  //   {
-  //     id: 5,
-  //     icon: '🎯',
-  //     message: 'Weekly attendance report generated',
-  //     time: '2 hours ago',
-  //     type: 'report'
-  //   }
-  // ]);
 
-  // Update time every minute
+  // Dashboard stats (these drive the 4 cards)
+  const [stats, setStats] = useState({
+    totalEmployees: 0,
+    presentToday: 0,
+    onLeave: 0,
+    lateArrivals: 0,            // not provided by summary API (placeholder)
+    pendingLeaveRequests: 0,    // not provided by summary API (placeholder)
+    overtimeHours: 0,
+    newRegistrations: 0,        // placeholder
+    systemUptime: '—'           // placeholder
+  });
+
+  // Load summary when the page mounts (and every minute to keep “Present” fresh)
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000);
+    const load = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const { from, to } = getThisMonthRange();
+
+        const params = new URLSearchParams({
+          from,
+          to,
+          _: Date.now().toString(), // cache-buster
+        });
+
+        const response = await fetch(`${API_BASE}/api/admin/summary?${params.toString()}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
+          cache: 'no-store'
+        });
+
+        if (!response.ok) {
+          console.error('Summary HTTP error:', response.status);
+          return;
+        }
+
+        const json = await response.json();
+        if (!json?.success) {
+          console.error('Summary API returned success=false:', json);
+          return;
+        }
+
+        const s = json.summary || {};
+        setStats(prev => ({
+          ...prev,
+          totalEmployees: Number(s.totalEmployees ?? 0),
+          presentToday: Number(s.activeEmployeesNow ?? 0),
+          onLeave: Number(s.totalLeavesApproved ?? 0),
+          overtimeHours: Number(s.overtimeHours ?? 0)
+          // pendingLeaveRequests / lateArrivals / newRegistrations are placeholders
+        }));
+      } catch (err) {
+        console.error('Failed to load company summary:', err);
+      }
+    };
+
+    // initial load
+    load();
+
+    // refresh every 60s so “Present” stays current
+    const t = setInterval(load, 60_000);
+    return () => clearInterval(t);
+  }, []);
+
+  // Clock tick every minute (UI nicety)
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
 
@@ -77,9 +110,7 @@ const AdminDashboardPage = () => {
     navigate('/login');
   };
 
-  const navigateToView = (view) => {
-    setCurrentView(view);
-  };
+  const navigateToView = (view) => setCurrentView(view);
 
   const quickActions = [
     {
@@ -122,31 +153,18 @@ const AdminDashboardPage = () => {
       color: 'blue',
       action: () => setCurrentView('analytics')
     },
-    // {
-    //   icon: '⚙️',
-    //   title: 'System Settings',
-    //   description: 'Configure system preferences',
-    //   count: 'Config',
-    //   color: 'blue',
-    //   action: () => setCurrentView('settings')
-    // }
   ];
 
   const getColorClasses = (color) => {
-    const colors = {
-      blue: 'bg-gray-50 border-[#2E4A8A]]-800 text-black'
-    };
+    const colors = { blue: 'bg-gray-50 border-[#2E4A8A]]-800 text-black' };
     return colors[color] || colors.blue;
   };
-
   const getButtonColorClasses = (color) => {
-    const colors = {
-      blue: 'bg-[#2E4A8A] text-white hover:bg-[#1b2a4a]'
-    };
+    const colors = { blue: 'bg-[#2E4A8A] text-white hover:bg-[#1b2a4a]' };
     return colors[color] || colors.blue;
   };
 
-  // Function to render different views
+  // View switcher
   const renderCurrentView = () => {
     switch (currentView) {
       case 'leaves':
@@ -166,7 +184,7 @@ const AdminDashboardPage = () => {
     }
   };
 
-  // Main dashboard view
+  // Dashboard cards (now driven by API)
   const renderDashboardView = () => (
     <>
       {/* Stats Overview */}
@@ -189,7 +207,9 @@ const AdminDashboardPage = () => {
             <div>
               <p className="text-sm font-medium text-gray-600">Present</p>
               <p className="text-3xl font-bold text-gray-900">{stats.presentToday}</p>
-              <p className="text-xs text-gray-500 mt-1">{((stats.presentToday / stats.totalEmployees) * 100).toFixed(1)}% attendance</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {stats.totalEmployees ? ((stats.presentToday / stats.totalEmployees) * 100).toFixed(1) : '0.0'}% attendance
+              </p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
               <span className="text-2xl">✅</span>
@@ -200,7 +220,7 @@ const AdminDashboardPage = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Absent</p>
+              <p className="text-sm font-medium text-gray-600">On Leave</p>
               <p className="text-3xl font-bold text-gray-900">{stats.onLeave}</p>
               <p className="text-xs text-yellow-600 mt-1">{stats.pendingLeaveRequests} pending requests</p>
             </div>
@@ -215,7 +235,7 @@ const AdminDashboardPage = () => {
             <div>
               <p className="text-sm font-medium text-gray-600">Overtime Hours</p>
               <p className="text-3xl font-bold text-gray-900">{stats.overtimeHours}</p>
-              <p className="text-xs text-purple-600 mt-1">This week</p>
+              <p className="text-xs text-purple-600 mt-1">This month</p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
               <span className="text-2xl">⏰</span>
@@ -224,8 +244,8 @@ const AdminDashboardPage = () => {
         </div>
       </div>
 
+      {/* Quick Actions */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        {/* Quick Actions */}
         <div className="xl:col-span-2">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h2>
@@ -254,63 +274,6 @@ const AdminDashboardPage = () => {
             </div>
           </div>
         </div>
-
-        {/* Recent Activities */}
-        {/* <div className="xl:col-span-1">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
-              <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                View All
-              </button>
-            </div>
-            <div className="space-y-4">
-              {recentActivities.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition duration-200">
-                  <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm">{activity.icon}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-900 leading-tight">{activity.message}</p>
-                    <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div> */}
-
-          {/* System Status */}
-          {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">System Status</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">System Uptime</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-green-600">{stats.systemUptime}</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Database</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-green-600">Connected</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">API Status</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-green-600">Operational</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Last Backup</span>
-                <span className="text-sm text-gray-500">2 hours ago</span>
-              </div>
-            </div>
-          </div>
-        </div> */}
       </div>
 
       {/* Admin Profile Card */}
@@ -348,30 +311,22 @@ const AdminDashboardPage = () => {
     </>
   );
 
-  // Get current view title for header
   const getCurrentViewTitle = () => {
     switch (currentView) {
-      case 'dashboard':
-        return 'Admin Dashboard';
-      case 'leaves':
-        return 'Leave Management';
-      case 'employees':
-        return 'Employee Management';
-      case 'shifts':
-        return 'Shift Management';
-      case 'overtime':
-        return 'Overtime Tracking';
-      case 'analytics':
-        return 'Analytics & Reports';
-      case 'settings':
-        return 'System Settings';
-      default:
-        return 'Admin Dashboard';
+      case 'dashboard': return 'Admin Dashboard';
+      case 'leaves': return 'Leave Management';
+      case 'employees': return 'Employee Management';
+      case 'shifts': return 'Shift Management';
+      case 'overtime': return 'Overtime Tracking';
+      case 'analytics': return 'Analytics & Reports';
+      case 'settings': return 'System Settings';
+      default: return 'Admin Dashboard';
     }
   };
 
   return (
-    <div className="min-h-screen"
+    <div
+      className="min-h-screen"
       style={{
         backgroundImage: "url('/background.png')",
         backgroundSize: "cover",
@@ -387,10 +342,6 @@ const AdminDashboardPage = () => {
           <div className="flex-1 mx-auto px-4">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center space-x-4">
-              {/* <h1 className="text-2xl font-bold text-gray-900">
-                {getCurrentViewTitle()}
-              </h1> 
-              {currentView === 'dashboard' && (*/}
                 <span className="text-sm text-gray-500">
                   {currentTime.toLocaleString('en-US', {
                     weekday: 'long',
@@ -400,33 +351,32 @@ const AdminDashboardPage = () => {
                     hour: '2-digit',
                     minute: '2-digit'
                   })}
-                </span>          
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">Welcome, {user?.name}</p>
-                <p className="text-xs text-gray-500">{user?.department} • {user?.employeeId}</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">
-                  Administrator
                 </span>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-1 text-[#2E4A8A] rounded-[9px] hover:bg-[#2E4A8A] hover:text-white mr-2"
-                >
-                  Logout
-                </button>
-                {/* <Link to="/profile"  */}
-                <button 
-                  onClick={() => navigateToView('profile')}
-                  className="px-4 py-1 group flex items-center justify-center">
-                  <img src="/profile.svg" alt="Profile Logo" className="h-12 block group-hover:hidden" />
-                  <img src="/profile_hover.svg" alt="Hover Profile Logo" className="h-12 hidden group-hover:block" />
-                </button>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900">Welcome, {user?.name}</p>
+                  <p className="text-xs text-gray-500">{user?.department} • {user?.employeeId}</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">
+                    Administrator
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-1 text-[#2E4A8A] rounded-[9px] hover:bg-[#2E4A8A] hover:text-white mr-2"
+                  >
+                    Logout
+                  </button>
+                  <button
+                    onClick={() => navigateToView('profile')}
+                    className="px-4 py-1 group flex items-center justify-center">
+                    <img src="/profile.svg" alt="Profile Logo" className="h-12 block group-hover:hidden" />
+                    <img src="/profile_hover.svg" alt="Hover Profile Logo" className="h-12 hidden group-hover:block" />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
           </div>
         </div>
       </header>
