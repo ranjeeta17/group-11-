@@ -18,15 +18,12 @@ function toLocalParts(date, timeZone = TZ) {
   return { dateISO: `${yyyy}-${mm}-${dd}`, time, dayName, tz: timeZone };
 }
 
-// --- Create a check-in (manual endpoint or called after login) ---
 const checkIn = async (req, res) => {
   try {
     const userId = req.user.userId || req.user.id;
 
-    // Prevent overlapping sessions: close any dangling record (optional: or reject)
     const open = await TimeRecord.findOne({ user: userId, logoutAt: null }).sort({ loginAt: -1 });
     if (open) {
-      // If you prefer rejecting instead, swap this block.
       open.logoutAt = new Date();
       open.logoutLocal = toLocalParts(open.logoutAt);
       open.durationMinutes = Math.round((open.logoutAt - open.loginAt) / 60000);
@@ -50,7 +47,6 @@ const checkIn = async (req, res) => {
   }
 };
 
-// --- Create a check-out (manual endpoint or called on /logout) ---
 const checkOut = async (req, res) => {
   try {
     const userId = req.user.userId || req.user.id;
@@ -72,7 +68,6 @@ const checkOut = async (req, res) => {
   }
 };
 
-// --- Get my records (paginated & filterable by date range) ---
 const getMyRecords = async (req, res) => {
   try {
     const userId = req.user.userId || req.user.id;
@@ -105,14 +100,10 @@ const getMyRecords = async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to fetch time records' });
   }
 };
-// --- Present today (distinct users with a session overlapping *today* in Brisbane) ---
 const presentTodayCount = async (req, res) => {
   try {
-    // Use your own helper so "today" is Brisbane's date string (YYYY-MM-DD)
     const todayLocalISO = toLocalParts(new Date(), TZ).dateISO;
 
-    // Overlap rule in LOCAL (Brisbane) terms:
-    // loginLocal.dateISO <= today  AND  (logoutAt == null OR logoutLocal.dateISO >= today)
     const pipeline = [
       {
         $match: {

@@ -1,7 +1,6 @@
-
+// middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { ADMIN_EMAIL } = require('../config/adminConfig');
 
 const protect = async (req, res, next) => {
   const auth = req.headers.authorization || '';
@@ -9,19 +8,36 @@ const protect = async (req, res, next) => {
     return res.status(401).json({ message: 'Not authorized, no token' });
   }
   const token = auth.split(' ')[1];
+
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id).select('-password');
-    if (!user) return res.status(401).json({ message: 'Not authorized, user not found' });
-    req.user = user;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    // Our tokens contain { userId, email, role } — not "id"
+    const user = await User.findById(decoded.userId).select('-password');
+    if (!user) {
+      return res.status(401).json({ message: 'Not authorized, user not found' });
+    }
+
+    // Attach a normalized user object for downstream routes
+    req.user = {
+      id: user._id,              // for convenience
+      userId: user._id,          // compatibility with existing code using req.user.userId
+      email: user.email,
+      role: user.role,
+      department: user.department,
+      name: user.name,
+      employeeId: user.employeeId,
+      isActive: user.isActive,
+    };
+
     next();
-  } catch {
+  } catch (err) {
     return res.status(401).json({ message: 'Not authorized, token invalid' });
   }
 };
 
 const isAdmin = (req, res, next) => {
-  if (req.user?.email === ADMIN_EMAIL) return next();
+  // Prefer role-based check over hard-coding a single admin email
+  if (req.user?.role === 'admin') return next();
   return res.status(403).json({ message: 'Admin only' });
 };
 
