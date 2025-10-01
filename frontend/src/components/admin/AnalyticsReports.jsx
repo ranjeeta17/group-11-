@@ -13,35 +13,47 @@ function rangeFromDateRange(dateRange) {
   let from, to;
   switch (dateRange) {
     case 'today': {
-      const s = new Date(now); s.setHours(0,0,0,0);
-      const e = new Date(now); e.setHours(23,59,59,999);
-      from = toYYYYMMDD(s); to = toYYYYMMDD(e);
+      const s = new Date(now);
+      s.setHours(0, 0, 0, 0);
+      const e = new Date(now);
+      e.setHours(23, 59, 59, 999);
+      from = toYYYYMMDD(s);
+      to = toYYYYMMDD(e);
       break;
     }
     case 'this_week': {
-      const dow = now.getDay() || 7; // Mon..Sun
-      const start = new Date(now); start.setDate(now.getDate() - (dow - 1)); start.setHours(0,0,0,0);
-      const end = new Date(start); end.setDate(start.getDate() + 6); end.setHours(23,59,59,999);
-      from = toYYYYMMDD(start); to = toYYYYMMDD(end);
+      // Monday = 1 ... Sunday = 7
+      const dow = now.getDay() || 7;
+      const start = new Date(now);
+      start.setDate(now.getDate() - (dow - 1));
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      end.setHours(23, 59, 59, 999);
+      from = toYYYYMMDD(start);
+      to = toYYYYMMDD(end);
       break;
     }
     case 'last_month': {
       const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
       const end = new Date(now.getFullYear(), now.getMonth(), 0);
-      from = toYYYYMMDD(start); to = toYYYYMMDD(end);
+      from = toYYYYMMDD(start);
+      to = toYYYYMMDD(end);
       break;
     }
     case 'this_year': {
       const start = new Date(now.getFullYear(), 0, 1);
       const end = new Date(now.getFullYear(), 11, 31);
-      from = toYYYYMMDD(start); to = toYYYYMMDD(end);
+      from = toYYYYMMDD(start);
+      to = toYYYYMMDD(end);
       break;
     }
     case 'this_month':
     default: {
       const start = new Date(now.getFullYear(), now.getMonth(), 1);
       const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      from = toYYYYMMDD(start); to = toYYYYMMDD(end);
+      from = toYYYYMMDD(start);
+      to = toYYYYMMDD(end);
     }
   }
   return { from, to };
@@ -82,28 +94,28 @@ const AnalyticsReports = ({ onBack }) => {
     { value: 'overtime', label: 'Overtime Report' },
     { value: 'payroll', label: 'Payroll Summary' },
     { value: 'department', label: 'Department Analysis' },
-    { value: 'employee', label: 'Employee Performance' }
+    { value: 'employee', label: 'Employee Performance' },
   ];
 
   const { from, to } = useMemo(() => rangeFromDateRange(dateRange), [dateRange]);
 
+  // Load department list
   useEffect(() => {
     (async () => {
       try {
         const token = localStorage.getItem('token');
         const res = await fetch(`${API_BASE}/api/auth/employees`, {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-          
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         });
         const data = await res.json();
         if (data?.success && Array.isArray(data.employees)) {
           const uniq = Array.from(
             new Set(
               data.employees
-                .map(e => (e.department || '').trim())
+                .map((e) => (e.department || '').trim())
                 .filter(Boolean)
             )
           ).sort();
@@ -118,6 +130,7 @@ const AnalyticsReports = ({ onBack }) => {
     })();
   }, []);
 
+  // Refresh company summary when range/department changes
   useEffect(() => {
     fetchCompanySummary();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -134,9 +147,9 @@ const AnalyticsReports = ({ onBack }) => {
 
       const response = await fetch(`${API_BASE}/api/admin/summary?${params.toString()}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       const data = await response.json();
@@ -164,9 +177,10 @@ const AnalyticsReports = ({ onBack }) => {
 
       const response = await fetch(`${API_BASE}/api/admin/employee/${safeId}/summary?${qs}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }, cache: 'no-store'
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store',
       });
 
       const data = await response.json();
@@ -184,7 +198,6 @@ const AnalyticsReports = ({ onBack }) => {
     }
   }
 
-  
   const renderOverview = () => (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -281,7 +294,10 @@ const AnalyticsReports = ({ onBack }) => {
             <div className="text-sm text-gray-800 space-y-1">
               <div><span className="font-semibold">Present Days:</span> {employeeSummary.presentDays}</div>
               <div><span className="font-semibold">Present Today:</span> {employeeSummary.openSessionNow ? 'Yes' : 'No'}</div>
-              <div><span className="font-semibold">Last Login (UTC):</span> {employeeSummary.lastLoginAt ? new Date(employeeSummary.lastLoginAt).toLocaleString() : '—'}</div>
+              <div>
+                <span className="font-semibold">Last Login (UTC):</span>{' '}
+                {employeeSummary.lastLoginAt ? new Date(employeeSummary.lastLoginAt).toLocaleString() : '—'}
+              </div>
             </div>
           </div>
 
@@ -300,9 +316,12 @@ const AnalyticsReports = ({ onBack }) => {
 
   const renderCurrentTab = () => {
     switch (activeTab) {
-      case 'overview': return renderOverview();
-      case 'attendance': return renderEmployeeSummary();
-      default: return renderOverview();
+      case 'overview':
+        return renderOverview();
+      case 'attendance':
+        return renderEmployeeSummary();
+      default:
+        return renderOverview();
     }
   };
 
@@ -323,14 +342,20 @@ const AnalyticsReports = ({ onBack }) => {
       <div className="mb-6">
         <button
           onClick={onBack}
-          className="text-lg text-gray-500 hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
+          className="text-lg text-gray-500 hover:text-gray-300 font-medium inline-flex items-center transition duration-200"
+        >
           ← Back to Dashboard
         </button>
       </div>
+
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900"
-            style={{ textShadow: '2px 2px 4px white' }}>Analytics & Reports</h2>
+          <h2
+            className="text-2xl font-bold text-gray-900"
+            style={{ textShadow: '2px 2px 4px white' }}
+          >
+            Analytics &amp; Reports
+          </h2>
           <p className="text-lg text-gray-400 mt-2">View employee analytics and generate reports</p>
         </div>
       </div>
@@ -338,15 +363,16 @@ const AnalyticsReports = ({ onBack }) => {
       {/* Tabs */}
       <div className="border-b border-gray-200">
         <nav className="-mb-px flex space-x-8">
-          {tabs.map(tab => (
+          {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center px-4 py-4 text-lg font-medium border-b-2 ${
                 activeTab === tab.id
-                  ? 'bg-[#2E4A8A] text-white text-lg font-semibold rounded-t-lg px-3'
+                  ? 'bg-[#2E4A8A] text-white font-semibold rounded-t-lg px-3'
                   : 'border-transparent text-[#2E4A8A] hover:text-gray-500 hover:border-gray-500'
-              }`}>
+              }`}
+            >
               {tab.label}
             </button>
           ))}
@@ -356,7 +382,7 @@ const AnalyticsReports = ({ onBack }) => {
       {/* Date Range + Reports */}
       <div className="flex justify-between items-center">
         <div className="flex space-x-3">
-          <select 
+          <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
             className="bg-white text-black px-4 py-2 rounded-lg shadow transition duration-200"
@@ -367,19 +393,32 @@ const AnalyticsReports = ({ onBack }) => {
             <option value="last_month">Last Month</option>
             <option value="this_year">This Year</option>
           </select>
+
+          <select
+            value={selectedDept}
+            onChange={(e) => setSelectedDept(e.target.value)}
+            className="bg-white text-black px-4 py-2 rounded-lg shadow transition duration-200"
+          >
+            {departments.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex space-x-3">
-          <select 
+          <select
             value={reportType}
             onChange={(e) => setReportType(e.target.value)}
             className="bg-white text-black px-4 py-2 rounded-lg shadow transition duration-200"
           >
             {reportTypes.map((type) => (
-              <option key={type.value} value={type.value}>{type.label}</option>
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
             ))}
           </select>
-        
         </div>
       </div>
 
