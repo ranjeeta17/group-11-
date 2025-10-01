@@ -128,7 +128,7 @@ const MyReports = ({ onBack }) => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div className="bg-white max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       {/* Back Button */}
       <div className="mb-6">
         <button

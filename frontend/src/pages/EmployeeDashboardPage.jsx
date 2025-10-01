@@ -304,6 +304,15 @@ useEffect(() => {
       color: 'blue',
       action: () => console.log('Overtime clicked')
     },
+    {
+      icon: <img src="/analytics.svg" alt="reports" className="h-20" />,
+      title: 'Reports',
+      description: 'Download attendance reports',
+      value: 'View',
+      subtext: 'Monthly reports',
+      color: 'blue',
+      action: () => navigateToView('reports')
+    }
     // {
     //   icon: '👤',
     //   title: 'My Profile',
@@ -312,15 +321,6 @@ useEffect(() => {
     //   subtext: 'Profile settings',
     //   color: 'indigo',
     //   action: () => navigateToView('profile')
-    // },
-    // {
-    //   icon: '📊',
-    //   title: 'Reports',
-    //   description: 'Download attendance reports',
-    //   value: 'View',
-    //   subtext: 'Monthly reports',
-    //   color: 'gray',
-    //   action: () => navigateToView('reports')
     // }
   ];
 
@@ -439,7 +439,9 @@ useEffect(() => {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">My Services</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {quickActions.map((action, index) => (
+              {quickActions.map((action, index) => {
+                console.log('Rendering action:', action.title, 'at index:', index);
+                return (
                 <div
                   key={index}
                   className={`border-2 rounded-xl p-6 transition-all duration-200 hover:shadow-md cursor-pointer ${getColorClasses(action.color)}`}
@@ -460,7 +462,8 @@ useEffect(() => {
                     Access
                   </button>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
