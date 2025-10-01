@@ -194,7 +194,7 @@ const LeaveManagement = ({ onBack }) => {
       <div className="mb-6">
         <button
           onClick={onBack}
-          className="text-lg text-gray-500 hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
+          className="text-lg text-gray-600 hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
           ← Back to Dashboard
         </button>
       </div>
@@ -203,7 +203,7 @@ const LeaveManagement = ({ onBack }) => {
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900"
           style={{ textShadow: '2px 2px 4px white' }}>Leave Management</h2>
-        <p className="text-lg text-gray-300 mt-2">Manage employee leave requests and track statistics</p>
+        <p className="text-lg text-gray-500 mt-2">Manage employee leave requests and track statistics</p>
       </div>
 
       {/* Statistics Cards */}

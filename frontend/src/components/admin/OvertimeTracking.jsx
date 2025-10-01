@@ -221,7 +221,7 @@ const OvertimeTracking = ({ onBack }) => {
       <div className="mb-6">
         <button
           onClick={onBack}
-          className="text-lg text-gray-500 hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
+          className="text-lg text-gray-600 hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
           ← Back to Dashboard
         </button>
       </div>
@@ -231,7 +231,7 @@ const OvertimeTracking = ({ onBack }) => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900"
             style={{ textShadow: '2px 2px 4px white' }}>Overtime Tracking</h2>
-          <p className="text-lg text-gray-300 mt-2">Monitor and approve employee overtime hours</p>
+          <p className="text-lg text-gray-500 mt-2">Monitor and approve employee overtime hours</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}

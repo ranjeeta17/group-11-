@@ -115,7 +115,7 @@ const AdminDashboardPage = () => {
       action: () => setCurrentView('overtime')
     },
     {
-      icon: '📊',
+      icon: <img src="/analytics.svg" alt="overtime" className="h-20" />,
       title: 'Analytics & Reports',
       description: 'Generate detailed attendance reports',
       count: 'View',
@@ -410,13 +410,7 @@ const AdminDashboardPage = () => {
                 >
                   Logout
                 </button>
-                {/* <Link to="/profile"  */}
-                <button 
-                  onClick={() => navigateToView('profile')}
-                  className="px-4 py-1 group flex items-center justify-center">
-                  <img src="/profile.svg" alt="Profile Logo" className="h-12 block group-hover:hidden" />
-                  <img src="/profile_hover.svg" alt="Hover Profile Logo" className="h-12 hidden group-hover:block" />
-                </button>
+                <img src="/leaveRequest.svg" alt='logout' className="h-10 mr-10"/>
               </div>
             </div>
           </div>
