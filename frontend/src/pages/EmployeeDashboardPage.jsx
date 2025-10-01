@@ -613,7 +613,12 @@ useEffect(() => {
       {/* Header */}
       <header className="bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="flex items-center h-16">
-          <img src="/timetrackr11_page.svg" alt="TimeTrackr11" className="h-10 ml-10" />
+          <button 
+            onClick={() => setCurrentView('dashboard')}
+            className="ml-10 hover:opacity-80 transition-opacity duration-200"
+          >
+            <img src="/timetrackr11_page.svg" alt="TimeTrackr11" className="h-10" />
+          </button>
           <div className="flex-1 mx-auto px-4">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center space-x-4">
