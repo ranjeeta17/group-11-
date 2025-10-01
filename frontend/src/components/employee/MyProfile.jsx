@@ -178,21 +178,14 @@ const MyProfile = ({ onBack }) => {
   }
 
   return (
-    <main style={{
-                minHeight: "100vh",
-                width: "100%",
-                backgroundImage: "url('/background.png')",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-                fontFamily: "Afacad, sans-serif"
-              }}>
+    <div className="bg-gray-100 min-h-screen"
+      style={{ fontFamily: 'Afacad, sans-serif' }}>
       <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <div className="mb-6">
           <button
             onClick={onBack}
-            className="text-lg text-white hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
+            className="text-lg text-gray-500 hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
             ← Back to Dashboard
           </button>
         </div>
@@ -518,7 +511,7 @@ const MyProfile = ({ onBack }) => {
           )}
         </div>
       </div>
-    </main>
+    </div>
   );
 };
 
