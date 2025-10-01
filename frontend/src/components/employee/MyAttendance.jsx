@@ -114,7 +114,7 @@ console.log('My records (no filters):', data);
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div className="bg-white max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       {/* Back Button */}
       <div className="mb-6 flex items-center justify-between">
         <button
