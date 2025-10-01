@@ -6,8 +6,9 @@ require('dotenv').config();
 
 const User = require('./models/User');
 const timeRecordRoutes = require('./routes/timeRecordRoutes');
-
 const Leave = require('./models/Leave'); 
+const adminRoutes = require('./routes/adminRoutes');
+
 
 mongoose.set('strictQuery', false);
 
@@ -449,13 +450,11 @@ const calculateWorkingDays = (startDate, endDate) => {
   return workingDays;
 };
 
-// Employee: Create new leave request
 app.post('/api/leaves', authenticateToken, async (req, res) => {
   try {
     const { leaveType, startDate, endDate, reason } = req.body;
     const userId = req.user.userId;
 
-    // Validation
     if (!leaveType || !startDate || !endDate || !reason) {
       return res.status(400).json({
         success: false,
@@ -463,7 +462,6 @@ app.post('/api/leaves', authenticateToken, async (req, res) => {
       });
     }
 
-    // Validate dates
     const start = new Date(startDate);
     const end = new Date(endDate);
     const today = new Date();
@@ -483,7 +481,6 @@ app.post('/api/leaves', authenticateToken, async (req, res) => {
       });
     }
 
-    // Get employee details
     const employee = await User.findById(userId).select('-password');
     if (!employee) {
       return res.status(404).json({
@@ -492,7 +489,6 @@ app.post('/api/leaves', authenticateToken, async (req, res) => {
       });
     }
 
-    // Check for overlapping leave requests
     const overlappingLeave = await Leave.findOne({
       employeeId: userId,
       status: { $in: ['pending', 'approved'] },
@@ -508,10 +504,8 @@ app.post('/api/leaves', authenticateToken, async (req, res) => {
       });
     }
 
-    // Calculate working days
     const totalDays = calculateWorkingDays(start, end);
 
-    // Create leave request
     const leave = new Leave({
       employeeId: userId,
       employeeName: employee.name,
@@ -918,6 +912,9 @@ app.get('/api/shifts/stats', authenticateToken, requireAdmin, getShiftStats);
 app.get('/api/shifts', authenticateToken, requireAdmin, getAllShifts);
 app.post('/api/shifts', authenticateToken, requireAdmin, assignShift);
 
+app.use('/api/admin', adminRoutes); // <-- add this
+
+
 // Catch-all 404 (keep after routes)
 app.use((req, res) => {
   console.warn(`\u26A0\uFE0F  404 Not Found: ${req.method} ${req.originalUrl}`);
@@ -971,6 +968,7 @@ async function createDefaultUsers() {
     console.error('Error creating default users:', err);
   }
 }
+
 
 // --- Start Server ---
 const PORT = process.env.PORT || 5001;
