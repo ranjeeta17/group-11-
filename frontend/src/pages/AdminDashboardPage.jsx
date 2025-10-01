@@ -159,7 +159,7 @@ const AdminDashboardPage = () => {
     const colors = { blue: 'bg-gray-50 border-[#2E4A8A]]-800 text-black' };
     return colors[color] || colors.blue;
   };
-  
+
   const getButtonColorClasses = (color) => {
     const colors = { blue: 'bg-[#2E4A8A] text-white hover:bg-[#1b2a4a]' };
     return colors[color] || colors.blue;
@@ -361,13 +361,7 @@ const AdminDashboardPage = () => {
                   >
                     Logout
                   </button>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-1 text-[#2E4A8A] rounded-[9px] hover:bg-[#2E4A8A] hover:text-white mr-2"
-                >
-                  Logout
-                </button>
-                <img src="/leaveRequest.svg" alt='logout' className="h-10 mr-10"/>
+                  <img src="/leaveRequest.svg" alt='logout' className="h-10 mr-10"/>
                 </div>
               </div>
             </div>
