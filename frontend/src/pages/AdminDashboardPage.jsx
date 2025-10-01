@@ -159,6 +159,7 @@ const AdminDashboardPage = () => {
     const colors = { blue: 'bg-gray-50 border-[#2E4A8A]]-800 text-black' };
     return colors[color] || colors.blue;
   };
+  
   const getButtonColorClasses = (color) => {
     const colors = { blue: 'bg-[#2E4A8A] text-white hover:bg-[#1b2a4a]' };
     return colors[color] || colors.blue;
