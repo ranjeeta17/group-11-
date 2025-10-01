@@ -379,12 +379,7 @@ const AnalyticsReports = ({ onBack }) => {
               <option key={type.value} value={type.value}>{type.label}</option>
             ))}
           </select>
-          <button
-            onClick={generateReport}
-            disabled={generateLoading}
-            className="bg-[#2E4A8A] text-white px-4 py-2 rounded-lg shadow hover:bg-white hover:text-black transition duration-200">
-            {generateLoading ? 'Generating...' : 'Generate Report'}
-          </button>
+        
         </div>
       </div>
 
