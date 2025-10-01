@@ -221,7 +221,7 @@ const OvertimeTracking = ({ onBack }) => {
       <div className="mb-6">
         <button
           onClick={onBack}
-          className="text-lg text-white hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
+          className="text-lg text-gray-500 hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
           ← Back to Dashboard
         </button>
       </div>

@@ -323,33 +323,15 @@ const AnalyticsReports = ({ onBack }) => {
       <div className="mb-6">
         <button
           onClick={onBack}
-          className="text-lg text-white hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
+          className="text-lg text-gray-500 hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
           ← Back to Dashboard
         </button>
       </div>
-
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900" style={{ textShadow: '2px 2px 4px white' }}>
-            Analytics & Reports
-          </h2>
-          <p className="text-lg text-gray-300 mt-2">
-            {selectedDept === 'All Departments' ? 'Company summary' : `Department: ${selectedDept}`}
-          </p>
-        </div>
-
-        {/* Report generator */}
-        <div className="flex space-x-3">
-          <select 
-            value={reportType}
-            onChange={(e) => setReportType(e.target.value)}
-            className="bg-white text-black px-4 py-2 rounded-lg shadow-md transition duration-200"
-          >
-            {reportTypes.map((type) => (
-              <option key={type.value} value={type.value}>{type.label}</option>
-            ))}
-          </select>
-         
+          <h2 className="text-2xl font-bold text-gray-900"
+            style={{ textShadow: '2px 2px 4px white' }}>Analytics & Reports</h2>
+          <p className="text-lg text-gray-400 mt-2">View employee analytics and generate reports</p>
         </div>
       </div>
 
@@ -362,8 +344,8 @@ const AnalyticsReports = ({ onBack }) => {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center px-4 py-4 text-lg font-medium border-b-2 ${
                 activeTab === tab.id
-                  ? 'bg-white text-[#2E4A8A] font-semibold rounded-t-lg px-3'
-                  : 'border-transparent text-white hover:text-[#2E4A8A] hover:border-gray-300'
+                  ? 'bg-[#2E4A8A] text-white text-lg font-semibold rounded-t-lg px-3'
+                  : 'border-transparent text-[#2E4A8A] hover:text-gray-500 hover:border-gray-500'
               }`}>
               {tab.label}
             </button>
@@ -371,13 +353,13 @@ const AnalyticsReports = ({ onBack }) => {
         </nav>
       </div>
 
-      {/* Range + Department selectors */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      {/* Date Range + Reports */}
+      <div className="flex justify-between items-center">
         <div className="flex space-x-3">
-          {/* <select 
+          <select 
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="bg-white text-black px-4 py-2 rounded-lg shadow-md transition duration-200"
+            className="bg-white text-black px-4 py-2 rounded-lg shadow transition duration-200"
           >
             <option value="today">Today</option>
             <option value="this_week">This Week</option>
@@ -385,26 +367,25 @@ const AnalyticsReports = ({ onBack }) => {
             <option value="last_month">Last Month</option>
             <option value="this_year">This Year</option>
           </select>
-
-          <select
-            value={selectedDept}
-            onChange={(e) => setSelectedDept(e.target.value)}
-            className="bg-white text-black px-4 py-2 rounded-lg shadow-md transition duration-200"
-          >
-            {departments.map(d => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select> */}
         </div>
 
-        {selectedDept !== 'All Departments' && (
-          <button
-            onClick={() => setSelectedDept('All Departments')}
-            className="text-sm text-white underline hover:text-[#2E4A8A]"
+        <div className="flex space-x-3">
+          <select 
+            value={reportType}
+            onChange={(e) => setReportType(e.target.value)}
+            className="bg-white text-black px-4 py-2 rounded-lg shadow transition duration-200"
           >
-            Clear department filter
+            {reportTypes.map((type) => (
+              <option key={type.value} value={type.value}>{type.label}</option>
+            ))}
+          </select>
+          <button
+            onClick={generateReport}
+            disabled={generateLoading}
+            className="bg-[#2E4A8A] text-white px-4 py-2 rounded-lg shadow hover:bg-white hover:text-black transition duration-200">
+            {generateLoading ? 'Generating...' : 'Generate Report'}
           </button>
-        )}
+        </div>
       </div>
 
       {/* Content */}

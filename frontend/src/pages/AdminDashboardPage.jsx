@@ -249,7 +249,7 @@ const AdminDashboardPage = () => {
         <div className="xl:col-span-2">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
               {quickActions.map((action, index) => (
                 <div
                   key={index}
@@ -325,16 +325,8 @@ const AdminDashboardPage = () => {
   };
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        backgroundImage: "url('/background.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        fontFamily: "Afacad, sans-serif"
-      }}
-    >
+    <div className="bg-gray-100 min-h-screen"
+      style={{ fontFamily: 'Afacad, sans-serif' }}>
       {/* Header */}
       <header className="bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="flex items-center h-16">
