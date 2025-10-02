@@ -24,7 +24,10 @@ const EmployeeDashboardPage = () => {
     leavesRemaining: 16,
     thisMonthHours: 168,
     overtimeHours: 8,
-    pendingRequests: 0, // Total leave requests (all statuses)
+    pendingRequests: 0,
+    approvedRequests: 0,
+    rejectedRequests: 0,
+    totalRequests: 0,
     lastLogin: '2024-01-15 09:15 AM',
     attendanceRate: 90.9
   });
@@ -174,20 +177,33 @@ const [elapsedSec, setElapsedSec] = useState(0);
   // Fetch employee stats
   useEffect(() => {
     fetchEmployeeStats();
+    
+    // Refresh stats every 30 seconds to get real-time updates
+    const interval = setInterval(fetchEmployeeStats, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const fetchEmployeeStats = async () => {
     setStatsLoading(true);
     try {
-      // Fetch all leaves count (all statuses)
+      // Fetch all leaves with their statuses
       const leavesResponse = await axiosInstance.get('/api/leaves/my-leaves');
       
-      const totalLeavesCount = leavesResponse.data?.leaves?.length || 0;
+      const leaves = leavesResponse.data?.leaves || [];
+      
+      // Count leaves by status
+      const pendingCount = leaves.filter(leave => leave.status === 'pending').length;
+      const approvedCount = leaves.filter(leave => leave.status === 'approved').length;
+      const rejectedCount = leaves.filter(leave => leave.status === 'rejected').length;
       
       // Update stats with real data
       setStats(prevStats => ({
         ...prevStats,
-        pendingRequests: totalLeavesCount
+        pendingRequests: pendingCount,
+        approvedRequests: approvedCount,
+        rejectedRequests: rejectedCount,
+        totalRequests: leaves.length
       }));
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -265,6 +281,20 @@ useEffect(() => {
     fetchEmployeeStats();
   };
 
+  const getLeaveStatusDisplay = () => {
+    if (statsLoading) return '...';
+    
+    if (stats.pendingRequests > 0) {
+      return `${stats.pendingRequests} pending`;
+    } else if (stats.approvedRequests > 0) {
+      return `${stats.approvedRequests} approved`;
+    } else if (stats.rejectedRequests > 0) {
+      return `${stats.rejectedRequests} rejected`;
+    } else {
+      return `${stats.totalRequests} total`;
+    }
+  };
+
   const renderCurrentView = () => {
     switch (currentView) {
       case 'leaves':
@@ -298,8 +328,8 @@ useEffect(() => {
       icon: <img src="/leaveRequest.svg" alt="Attendance" className="h-20" />,
       title: 'Leave Request',
       description: 'View and manage your leave applications',
-      value: statsLoading ? '...' : stats.pendingRequests,
-      subtext: 'Total requests',
+      value: getLeaveStatusDisplay(),
+      subtext: stats.totalRequests > 0 ? `${stats.totalRequests} total requests` : 'No requests',
       color: 'blue',
       action: () => navigateToView('leaves')
     },
@@ -322,7 +352,7 @@ useEffect(() => {
       color: 'blue',
       action: () => navigateToView('reports')
     },
-   
+    
     {
       icon: <img src="/overtime.svg" alt="overtime" className="h-20" />,
       title: 'My Overtime',
