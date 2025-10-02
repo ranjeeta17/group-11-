@@ -480,28 +480,38 @@ const EmployeeManagement = ({ onBack }) => {
                       {employee.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
                         onClick={() => openEditModal(employee)}
-                        className="text-blue-600 hover:text-blue-700"
+                        className="px-3 py-1.5 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 transition"
                       >
                         Edit
                       </button>
+
                       <button
                         onClick={() => handleToggleStatus(employee._id, employee.isActive)}
-                        className={employee.isActive ? 'text-red-600 hover:text-red-700' : 'text-green-600 hover:text-green-700'}
+                        className={`px-3 py-1.5 text-sm rounded-md transition ${
+                          employee.isActive
+                            ? "bg-gray-500 text-white hover:bg-gray-600"
+                            : "bg-green-600 text-white hover:bg-green-700"
+                        }`}
                       >
-                        {employee.isActive ? 'Deactivate' : 'Activate'}
+                        {employee.isActive ? "Deactivate" : "Activate"}
                       </button>
+
                       <button
                         onClick={() => handleDeleteEmployee(employee._id)}
-                        className="text-red-600 hover:text-red-700"
+                        className="px-3 py-1.5 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition"
                       >
                         Delete
                       </button>
                     </div>
                   </td>
+
+
+
+
                 </tr>
               ))}
             </tbody>

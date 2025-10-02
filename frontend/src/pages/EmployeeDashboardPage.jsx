@@ -343,15 +343,15 @@ useEffect(() => {
       action: () => navigateToView('schedule')
     },
     
-    {
-      icon: <img src="/analytics.svg" alt="reports" className="h-20" />,
-      title: 'Reports',
-      description: 'Download attendance reports',
-      value: 'View',
-      subtext: 'Monthly reports',
-      color: 'blue',
-      action: () => navigateToView('reports')
-    },
+    // {
+    //   icon: <img src="/analytics.svg" alt="reports" className="h-20" />,
+    //   title: 'Reports',
+    //   description: 'Download attendance reports',
+    //   value: 'View',
+    //   subtext: 'Monthly reports',
+    //   color: 'blue',
+    //   action: () => navigateToView('reports')
+    // },
     
     {
       icon: <img src="/overtime.svg" alt="overtime" className="h-20" />,
@@ -478,7 +478,7 @@ useEffect(() => {
         <div className="xl:col-span-2">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">My Services</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {quickActions.map((action, index) => {
                 console.log('Rendering action:', action.title, 'at index:', index);
                 return (
