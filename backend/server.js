@@ -8,6 +8,7 @@ const User = require('./models/User');
 const timeRecordRoutes = require('./routes/timeRecordRoutes');
 const Leave = require('./models/Leave'); 
 const adminRoutes = require('./routes/adminRoutes');
+const overtimeRoutes = require('./routes/overtimeRoutes');
 
 
 mongoose.set('strictQuery', false);
@@ -432,6 +433,7 @@ app.delete('/api/auth/employees/:id', authenticateToken, requireAdmin, async (re
 });
 
 app.use('/api/time-records', timeRecordRoutes);
+app.use('/api/overtime', overtimeRoutes);
 // --- LEAVE MANAGEMENT ROUTES ---
 
 // Helper function to calculate working days

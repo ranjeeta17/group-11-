@@ -53,7 +53,7 @@ const OvertimeTracking = ({ onBack }) => {
       if (filters.department) queryParams.append('department', filters.department);
       if (filters.dateRange) queryParams.append('dateRange', filters.dateRange);
 
-      const response = await fetch(`http://localhost:5001/api/admin/overtime?${queryParams}`, {
+      const response = await fetch(`http://localhost:5001/api/overtime/admin/all?${queryParams}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -137,7 +137,7 @@ const OvertimeTracking = ({ onBack }) => {
   const handleApproveReject = async (recordId, status, rejectionReason = '') => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5001/api/admin/overtime/${recordId}/status`, {
+      const response = await fetch(`http://localhost:5001/api/overtime/admin/${recordId}/status`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -190,13 +190,13 @@ const OvertimeTracking = ({ onBack }) => {
   const getTotalHours = () => {
     return overtimeRecords
       .filter(record => record.status === 'approved')
-      .reduce((total, record) => total + calculateHours(record.startTime, record.endTime), 0);
+      .reduce((total, record) => total + (record.actualHours || record.totalHours || 0), 0);
   };
 
   const getPendingHours = () => {
     return overtimeRecords
       .filter(record => record.status === 'pending')
-      .reduce((total, record) => total + calculateHours(record.startTime, record.endTime), 0);
+      .reduce((total, record) => total + (record.actualHours || record.totalHours || 0), 0);
   };
 
   const openApprovalModal = (record) => {
@@ -230,14 +230,14 @@ const OvertimeTracking = ({ onBack }) => {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="text-2xl font-bold text-gray-900"
-            style={{ textShadow: '2px 2px 4px white' }}>Overtime Tracking</h2>
-          <p className="text-lg text-gray-500 mt-2">Monitor and approve employee overtime hours</p>
+            style={{ textShadow: '2px 2px 4px white' }}>Overtime Management</h2>
+          <p className="text-lg text-gray-500 mt-2">Review and approve automatically calculated overtime hours</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
           className="bg-[#2E4A8A] text-white px-4 py-2 rounded-lg shadow-md hover:bg-white hover:text-black transition duration-200"
         >
-          Add Overtime Record
+          Add Manual Overtime
         </button>
       </div>
 
@@ -369,7 +369,7 @@ const OvertimeTracking = ({ onBack }) => {
                   Date
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Time Period
+                  Overtime Period
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Hours
@@ -387,18 +387,18 @@ const OvertimeTracking = ({ onBack }) => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {overtimeRecords.map((record) => {
-                const employee = employees.find(emp => emp._id === record.employeeId);
-                const hours = calculateHours(record.startTime, record.endTime);
+                const employee = record.employeeId; // Already populated
+                const hours = record.actualHours || record.totalHours;
                 
                 return (
                   <tr key={record._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
-                          {employee ? employee.name : 'Unknown Employee'}
+                          {employee?.name || 'Unknown Employee'}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {employee ? employee.department : 'N/A'}
+                          {employee?.department || 'N/A'}
                         </div>
                       </div>
                     </td>
@@ -406,14 +406,31 @@ const OvertimeTracking = ({ onBack }) => {
                       {formatDate(record.date)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatTime(record.startTime)} - {formatTime(record.endTime)}
+                      <div>{record.startTime} - {record.endTime}</div>
+                      {record.actualStartTime && record.actualEndTime && (
+                        <div className="text-xs text-gray-500">
+                          Actual: {new Date(record.actualStartTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} - {new Date(record.actualEndTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className="font-medium">{hours.toFixed(1)}h</span>
+                      <span className="font-medium">{hours?.toFixed(1) || '0.0'}h</span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
-                      <div className="max-w-xs truncate" title={record.reason}>
-                        {record.reason}
+                      <div className="max-w-xs">
+                        <div className="truncate" title={record.reason}>
+                          {record.reason}
+                        </div>
+                        {record.description && (
+                          <div className="text-xs text-gray-500 mt-1 truncate" title={record.description}>
+                            {record.description}
+                          </div>
+                        )}
+                        {record.rejectionReason && (
+                          <div className="text-xs text-red-600 mt-1">
+                            Rejected: {record.rejectionReason}
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -438,7 +455,16 @@ const OvertimeTracking = ({ onBack }) => {
                           </button>
                         </div>
                       ) : (
-                        <span className="text-gray-500">-</span>
+                        <div className="text-sm text-gray-500">
+                          {record.approvedBy?.name && (
+                            <div>By: {record.approvedBy.name}</div>
+                          )}
+                          {record.approvedAt && (
+                            <div className="text-xs">
+                              {new Date(record.approvedAt).toLocaleDateString()}
+                            </div>
+                          )}
+                        </div>
                       )}
                     </td>
                   </tr>

@@ -6,6 +6,7 @@ import MyAttendance from '../components/employee/MyAttendance';
 import MyProfile from '../components/employee/MyProfile';
 import MyReports from '../components/employee/MyReports';
 import MySchedule from '../components/employee/MySchedule';
+import MyOvertime from '../components/employee/MyOvertime';
 import axiosInstance from '../axiosConfig';
 
 const EmployeeDashboardPage = () => {
@@ -23,10 +24,11 @@ const EmployeeDashboardPage = () => {
     leavesRemaining: 16,
     thisMonthHours: 168,
     overtimeHours: 8,
-    pendingRequests: 2,
+    pendingRequests: 0, // Total leave requests (all statuses)
     lastLogin: '2024-01-15 09:15 AM',
     attendanceRate: 90.9
   });
+  const [statsLoading, setStatsLoading] = useState(false);
 
   const [todaySchedule, setTodaySchedule] = useState({
   shift: '—',
@@ -175,12 +177,23 @@ const [elapsedSec, setElapsedSec] = useState(0);
   }, []);
 
   const fetchEmployeeStats = async () => {
+    setStatsLoading(true);
     try {
-      // You can add API calls here to fetch real data
-      // const { data } = await axiosInstance.get('/api/employee/stats');
-      // setStats(data.stats);
+      // Fetch all leaves count (all statuses)
+      const leavesResponse = await axiosInstance.get('/api/leaves/my-leaves');
+      
+      const totalLeavesCount = leavesResponse.data?.leaves?.length || 0;
+      
+      // Update stats with real data
+      setStats(prevStats => ({
+        ...prevStats,
+        pendingRequests: totalLeavesCount
+      }));
     } catch (error) {
       console.error('Error fetching stats:', error);
+      // Keep the current stats if API fails
+    } finally {
+      setStatsLoading(false);
     }
   };
 
@@ -248,6 +261,8 @@ useEffect(() => {
 
   const goBackToDashboard = () => {
     setCurrentView('dashboard');
+    // Refresh stats when coming back to dashboard
+    fetchEmployeeStats();
   };
 
   const renderCurrentView = () => {
@@ -262,6 +277,8 @@ useEffect(() => {
         return <MyReports onBack={goBackToDashboard} />;
       case 'schedule':
         return <MySchedule onBack={goBackToDashboard} />;
+      case 'overtime':
+        return <MyOvertime onBack={goBackToDashboard} />;
       default:
         return renderDashboardView();
     }
@@ -280,9 +297,9 @@ useEffect(() => {
     {
       icon: <img src="/leaveRequest.svg" alt="Attendance" className="h-20" />,
       title: 'Leave Request',
-      description: 'Submit new leave applications',
-      value: stats.pendingRequests,
-      subtext: 'Pending requests',
+      description: 'View and manage your leave applications',
+      value: statsLoading ? '...' : stats.pendingRequests,
+      subtext: 'Total requests',
       color: 'blue',
       action: () => navigateToView('leaves')
     },
@@ -295,15 +312,7 @@ useEffect(() => {
       color: 'blue',
       action: () => navigateToView('schedule')
     },
-    {
-      icon: <img src="/overtime.svg" alt="overtime" className="h-20" />,
-      title: 'Overtime',
-      description: 'Track your extra working hours',
-      value: `${stats.overtimeHours}h`,
-      subtext: 'This month',
-      color: 'blue',
-      action: () => console.log('Overtime clicked')
-    },
+    
     {
       icon: <img src="/analytics.svg" alt="reports" className="h-20" />,
       title: 'Reports',
@@ -312,16 +321,17 @@ useEffect(() => {
       subtext: 'Monthly reports',
       color: 'blue',
       action: () => navigateToView('reports')
+    },
+   
+    {
+      icon: <img src="/overtime.svg" alt="overtime" className="h-20" />,
+      title: 'My Overtime',
+      description: 'View your overtime hours',
+      value: `${stats.overtimeHours}h`,
+      subtext: 'This month',
+      color: 'blue',
+      action: () => navigateToView('overtime')
     }
-    // {
-    //   icon: '👤',
-    //   title: 'My Profile',
-    //   description: 'Update personal information',
-    //   value: 'Edit',
-    //   subtext: 'Profile settings',
-    //   color: 'indigo',
-    //   action: () => navigateToView('profile')
-    // }
   ];
 
   const getColorClasses = (color) => {
