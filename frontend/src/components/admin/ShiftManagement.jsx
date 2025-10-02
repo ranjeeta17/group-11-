@@ -21,6 +21,20 @@ const ShiftManagement = ({ onBack }) => {
   const [editingShiftId, setEditingShiftId] = useState('');
   const [editForm, setEditForm] = useState({ userId: '', shiftType: 'morning', date: '', notes: '' });
 
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterShiftType, setFilterShiftType] = useState('all');
+
+  const handleClearFilters = () => {
+    setFilterStatus('all');
+    setFilterShiftType('all');
+  };
+
+  const filteredShifts = shifts.filter(s => {
+    const byStatus = filterStatus === 'all' ? true : (String(s.status).toLowerCase() === 'assigned');
+    const byType = filterShiftType === 'all' ? true : (String(s.shiftType).toLowerCase() === filterShiftType);
+    return byStatus && byType;
+  });
+
   const getWindowForType = (shiftType, dateStr) => {
     const base = new Date(dateStr);
     const y = base.getFullYear();
@@ -53,7 +67,6 @@ const ShiftManagement = ({ onBack }) => {
         response = await axiosInstance.get('/api/shifts/all');
       } catch (err) {
         if (err?.response?.status === 404) {
-          // Fallback to Assignment2-style endpoint
           response = await axiosInstance.get('/api/shifts');
         } else {
           throw err;
@@ -71,12 +84,10 @@ const ShiftManagement = ({ onBack }) => {
 
   const fetchUsers = async () => {
     try {
-      // Reuse existing admin employees list
       const response = await axiosInstance.get('/api/auth/employees');
       if (response.data?.employees) {
         setUsers(response.data.employees);
       } else {
-        // fallback: attempt another admin users endpoint if exists
         setUsers([]);
       }
     } catch (error) {
@@ -197,7 +208,20 @@ const ShiftManagement = ({ onBack }) => {
     }
   };
 
-  const formatDateTime = (dateTime) => new Date(dateTime).toLocaleString();
+  const formatDateTimePretty = (iso) => {
+    const d = new Date(iso);
+    const pad = (n) => String(n).padStart(2, '0');
+    const dd = pad(d.getDate());
+    const mon = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+    const yyyy = d.getFullYear();
+    let h = d.getHours();
+    const m = pad(d.getMinutes());
+    const s = pad(d.getSeconds());
+    const ampm = h >= 12 ? 'pm' : 'am';
+    h = h % 12 === 0 ? 12 : h % 12;
+    const hh = pad(h);
+    return `${dd}-${mon}-${yyyy}, ${hh}:${m}:${s} ${ampm}`;
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -211,9 +235,9 @@ const ShiftManagement = ({ onBack }) => {
 
   const getShiftTypeColor = (type) => {
     switch (type) {
-      case 'morning': return 'bg-orange-100 text-orange-800';
-      case 'evening': return 'bg-purple-100 text-purple-800';
-      case 'night': return 'bg-indigo-100 text-indigo-800';
+      case 'morning': return 'bg-amber-100 text-amber-800';
+      case 'evening': return 'bg-indigo-100 text-indigo-800';
+      case 'night': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -231,161 +255,300 @@ const ShiftManagement = ({ onBack }) => {
 
   return (
     <main>
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div className="mb-6">
-           <button
-          onClick={onBack}
-          className="text-lg text-gray-600 hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
-          ← Back to Dashboard
-        </button>
-      </div>
-      
-
-      <div className="flex justify-between items-center mb-8">
-        <div>
-        <h2 className="text-2xl font-bold text-gray-900"
-            style={{ textShadow: '2px 2px 4px white' }}>Shift Management</h2>
-          <p className="text-lg text-gray-500 mt-2">Manage employee shifts and schedules</p>
+      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="mb-6">
+          <button
+            onClick={onBack}
+            className="text-lg text-gray-600 hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
+            ← Back to Dashboard
+          </button>
         </div>
-                <button
-          onClick={() => setShowAssignForm(true)}
-          className="bg-[#2E4A8A] text-white px-4 py-2 rounded-lg shadow-md hover:bg-white hover:text-black transition duration-200"
-        >
-          Assign New Shift
-        </button>
-      </div>
 
-      {showAssignForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 max-w-full mx-4">
-            <h3 className="text-xl font-bold mb-4">Assign New Shift</h3>
-            <form onSubmit={handleAssignShift}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">User</label>
-                <select value={assignForm.userId} onChange={(e) => setAssignForm({...assignForm, userId: e.target.value})} className="w-full p-2 border rounded" required>
-                  <option value="">Select User</option>
-                  {users.map(u => (
-                    <option key={u._id} value={u._id}>{u.name} ({u.email})</option>
-                  ))}
-                </select>
-              </div>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900" style={{ textShadow: '2px 2px 4px white' }}>
+              Shift Management
+            </h2>
+            <p className="text-lg text-gray-500 mt-2">Manage employee shifts and schedules</p>
+          </div>
+          <button
+            onClick={() => setShowAssignForm(true)}
+            className="bg-[#2E4A8A] text-white px-4 py-2 rounded-lg shadow-md hover:bg-white hover:text-black transition duration-200"
+          >
+            Assign New Shift
+          </button>
+        </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Shift Type</label>
-                <select value={assignForm.shiftType} onChange={(e) => setAssignForm({...assignForm, shiftType: e.target.value})} className="w-full p-2 border rounded" required>
-                  <option value="morning">Morning (6:00 AM - 2:00 PM)</option>
-                  <option value="evening">Evening (2:00 PM - 10:00 PM)</option>
-                  <option value="night">Night (10:00 PM - 6:00 AM)</option>
-                </select>
-              </div>
+        {/* Filters */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+          <div className="px-6 py-4">
+            <h3 className="text-base font-semibold text-gray-900">Filters</h3>
+          </div>
+          <div className="px-6 py-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div>
+              <label className="block text-sm text-gray-600 mb-2">Status</label>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              >
+                <option value="all">All Status</option>
+                <option value="assigned">Assigned</option>
+              </select>
+            </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Strategy</label>
-                <select value={assignForm.strategy} onChange={(e) => setAssignForm({ ...assignForm, strategy: e.target.value })} className="w-full p-2 border rounded">
-                  <option value="userDefined">User Defined (single day)</option>
-                  <option value="autoWeekly">Auto Weekly (7 days)</option>
-                </select>
-              </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-2">Shift Type</label>
+              <select
+                value={filterShiftType}
+                onChange={(e) => setFilterShiftType(e.target.value)}
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              >
+                <option value="all">All Types</option>
+                <option value="morning">Morning</option>
+                <option value="evening">Evening</option>
+                <option value="night">Night</option>
+              </select>
+            </div>
 
-              {assignForm.strategy === 'autoWeekly' ? (
+            <div className="md:justify-self-start">
+              <button
+                onClick={handleClearFilters}
+                className="bg-[#2E4A8A] text-white px-4 py-2 rounded-lg shadow-md hover:bg-white hover:text-black transition duration-200"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Assign Modal */}
+        {showAssignForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg w-96 max-w-full mx-4">
+              <h3 className="text-xl font-bold mb-4">Assign New Shift</h3>
+              <form onSubmit={handleAssignShift}>
                 <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">Start Date</label>
-                  <input type="date" value={assignForm.startDate} onChange={(e) => setAssignForm({ ...assignForm, startDate: e.target.value })} className="w-full p-2 border rounded" required />
+                  <label className="block text-sm font-medium mb-2">User</label>
+                  <select
+                    value={assignForm.userId}
+                    onChange={(e) => setAssignForm({ ...assignForm, userId: e.target.value })}
+                    className="w-full p-2 border rounded"
+                    required
+                  >
+                    <option value="">Select User</option>
+                    {users.map(u => (
+                      <option key={u._id} value={u._id}>{u.name} ({u.email})</option>
+                    ))}
+                  </select>
                 </div>
-              ) : (
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Shift Type</label>
+                  <select
+                    value={assignForm.shiftType}
+                    onChange={(e) => setAssignForm({ ...assignForm, shiftType: e.target.value })}
+                    className="w-full p-2 border rounded"
+                    required
+                  >
+                    <option value="morning">Morning (6:00 AM - 2:00 PM)</option>
+                    <option value="evening">Evening (2:00 PM - 10:00 PM)</option>
+                    <option value="night">Night (10:00 PM - 6:00 AM)</option>
+                  </select>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Strategy</label>
+                  <select
+                    value={assignForm.strategy}
+                    onChange={(e) => setAssignForm({ ...assignForm, strategy: e.target.value })}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="userDefined">User Defined (single day)</option>
+                    <option value="autoWeekly">Auto Weekly (7 days)</option>
+                  </select>
+                </div>
+
+                {assignForm.strategy === 'autoWeekly' ? (
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-2">Start Date</label>
+                    <input
+                      type="date"
+                      value={assignForm.startDate}
+                      onChange={(e) => setAssignForm({ ...assignForm, startDate: e.target.value })}
+                      className="w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+                ) : (
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-2">Date</label>
+                    <input
+                      type="date"
+                      value={assignForm.date}
+                      onChange={(e) => setAssignForm({ ...assignForm, date: e.target.value })}
+                      className="w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+                )}
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Notes</label>
+                  <textarea
+                    value={assignForm.notes}
+                    onChange={(e) => setAssignForm({ ...assignForm, notes: e.target.value })}
+                    className="w-full p-2 border rounded"
+                    rows="3"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Assign Shift</button>
+                  <button type="button" onClick={() => setShowAssignForm(false)} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Shift Records */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b">
+            <h3 className="text-base font-semibold text-gray-900">Shift Records</h3>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shift Type</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Time</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Time</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned By</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredShifts.map((shift) => (
+                  <tr key={shift._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {shift.userId?.name || 'Unknown User'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getShiftTypeColor(shift.shiftType)}`}>
+                        {String(shift.shiftType || '').charAt(0).toUpperCase() + String(shift.shiftType || '').slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {formatDateTimePretty(shift.startTime)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {formatDateTimePretty(shift.endTime)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {shift.status ? String(shift.status).charAt(0).toUpperCase() + String(shift.status).slice(1) : 'Assigned'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {shift.assignedBy?.name || 'SYSADMIN'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => openEditShift(shift)}
+                          className="px-3 py-1.5 bg-yellow-400 text-black text-sm rounded-md hover:bg-yellow-300 transition"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteShift(shift._id)}
+                          className="px-3 py-1.5 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+
+                {filteredShifts.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-10 text-center text-sm text-gray-500">
+                      No records found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Edit Modal */}
+        {showEditForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg w-96 max-w-full mx-4">
+              <h3 className="text-xl font-bold mb-4">Edit Shift</h3>
+              <form onSubmit={handleEditShift}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">User</label>
+                  <select
+                    value={editForm.userId}
+                    onChange={(e) => setEditForm({ ...editForm, userId: e.target.value })}
+                    className="w-full p-2 border rounded"
+                    required
+                  >
+                    <option value="">Select User</option>
+                    {users.map(u => (<option key={u._id} value={u._id}>{u.name} ({u.email})</option>))}
+                  </select>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Shift Type</label>
+                  <select
+                    value={editForm.shiftType}
+                    onChange={(e) => setEditForm({ ...editForm, shiftType: e.target.value })}
+                    className="w-full p-2 border rounded"
+                    required
+                  >
+                    <option value="morning">Morning (6:00 AM - 2:00 PM)</option>
+                    <option value="evening">Evening (2:00 PM - 10:00 PM)</option>
+                    <option value="night">Night (10:00 PM - 6:00 AM)</option>
+                  </select>
+                </div>
+
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2">Date</label>
-                  <input type="date" value={assignForm.date} onChange={(e) => setAssignForm({ ...assignForm, date: e.target.value })} className="w-full p-2 border rounded" required />
+                  <input
+                    type="date"
+                    value={editForm.date}
+                    onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
                 </div>
-              )}
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Notes</label>
-                <textarea value={assignForm.notes} onChange={(e) => setAssignForm({...assignForm, notes: e.target.value})} className="w-full p-2 border rounded" rows="3" />
-              </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Notes</label>
+                  <textarea
+                    value={editForm.notes}
+                    onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                    className="w-full p-2 border rounded"
+                    rows="3"
+                  />
+                </div>
 
-              <div className="flex gap-2">
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Assign Shift</button>
-                <button type="button" onClick={() => setShowAssignForm(false)} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancel</button>
-              </div>
-            </form>
+                <div className="flex gap-2">
+                  <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
+                  <button type="button" onClick={() => setShowEditForm(false)} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancel</button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <table className="min-w-full">
-          <thead>
-            <tr>
-              <th>Employee Name</th>
-              <th>Shift Type</th>
-              <th>Start Time</th>
-              <th>End Time</th>
-              <th>Status</th>
-              <th>Assigned By</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {shifts.map((shift) => (
-              <tr key={shift._id}>
-                <td className="px-4 py-2 border">{shift.userId?.name || 'Unknown User'}</td>
-                <td className="px-4 py-2 border"><span className={`px-2 py-1 rounded text-xs ${getShiftTypeColor(shift.shiftType)}`}>{shift.shiftType}</span></td>
-                <td className="px-4 py-2 border">{formatDateTime(shift.startTime)}</td>
-                <td className="px-4 py-2 border">{formatDateTime(shift.endTime)}</td>
-                <td className="px-4 py-2 border"><span className={`px-2 py-1 rounded text-xs ${getStatusColor(shift.status)}`}>{shift.status}</span></td>
-                <td className="px-4 py-2 border">{shift.assignedBy?.name || 'Unknown'}</td>
-                <td className="px-4 py-2 border">
-                  <button onClick={() => openEditShift(shift)} className="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600 mr-2">Edit</button>
-                  <button onClick={() => handleDeleteShift(shift._id)} className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        )}
       </div>
-
-      {showEditForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 max-w-full mx-4">
-            <h3 className="text-xl font-bold mb-4">Edit Shift</h3>
-            <form onSubmit={handleEditShift}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">User</label>
-                <select value={editForm.userId} onChange={(e) => setEditForm({ ...editForm, userId: e.target.value })} className="w-full p-2 border rounded" required>
-                  <option value="">Select User</option>
-                  {users.map(u => (<option key={u._id} value={u._id}>{u.name} ({u.email})</option>))}
-                </select>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Shift Type</label>
-                <select value={editForm.shiftType} onChange={(e) => setEditForm({ ...editForm, shiftType: e.target.value })} className="w-full p-2 border rounded" required>
-                  <option value="morning">Morning (6:00 AM - 2:00 PM)</option>
-                  <option value="evening">Evening (2:00 PM - 10:00 PM)</option>
-                  <option value="night">Night (10:00 PM - 6:00 AM)</option>
-                </select>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Date</label>
-                <input type="date" value={editForm.date} onChange={(e) => setEditForm({ ...editForm, date: e.target.value })} className="w-full p-2 border rounded" required />
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Notes</label>
-                <textarea value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} className="w-full p-2 border rounded" rows="3" />
-              </div>
-
-              <div className="flex gap-2">
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
-                <button type="button" onClick={() => setShowEditForm(false)} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
     </main>
   );
 };

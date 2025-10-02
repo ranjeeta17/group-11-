@@ -1,15 +1,18 @@
 // components/employee/MySchedule.jsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axiosInstance from '../../axiosConfig.jsx';
 
 const MySchedule = ({ onBack }) => {
   const [shifts, setShifts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // filters
+  const [filterShiftType, setFilterShiftType] = useState('all'); // all | morning | evening | night
+
   const fetchMyShifts = useCallback(async () => {
     try {
       const response = await axiosInstance.get(`/api/shifts/my`);
-      setShifts(response.data);
+      setShifts(response.data || []);
     } catch (error) {
       console.error('Error fetching shifts:', error);
       setShifts([]);
@@ -22,93 +25,166 @@ const MySchedule = ({ onBack }) => {
     fetchMyShifts();
   }, [fetchMyShifts]);
 
-  const handleStatusUpdate = async (shiftId, newStatus) => {
-    try {
-      await axiosInstance.put(`/api/shifts/${shiftId}/status`, { status: newStatus });
-      fetchMyShifts();
-    } catch (error) {
-      console.error('Error updating shift status:', error);
-      alert(error.response?.data?.message || 'Failed to update shift status');
-    }
+  const handleClearFilters = () => {
+    setFilterShiftType('all');
   };
 
-  const formatDateTime = (dateTime) => new Date(dateTime).toLocaleString();
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'assigned': return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed': return 'bg-green-100 text-green-800';
-      case 'completed': return 'bg-blue-100 text-blue-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  // Map DB values to Figma labels
+  const displayShiftType = (type) => {
+    const t = String(type || '').toLowerCase();
+    if (t === 'morning') return 'Afternoon' === 'Morning' ? 'Morning' : 'Morning'; // safety
+    if (t === 'evening') return 'Afternoon';
+    if (t === 'night') return 'Midnight';
+    return type || '—';
   };
 
-  const getShiftTypeColor = (type) => {
-    switch (type) {
-      case 'morning': return 'bg-orange-100 text-orange-800';
-      case 'evening': return 'bg-purple-100 text-purple-800';
-      case 'night': return 'bg-indigo-100 text-indigo-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  // Keep DB values for filter comparison; only the label differs
+  const filteredShifts = useMemo(() => {
+    return shifts.filter((s) =>
+      filterShiftType === 'all'
+        ? true
+        : String(s.shiftType || '').toLowerCase() === filterShiftType
+    );
+  }, [shifts, filterShiftType]);
+
+  // DD-MMM-YYYY, h:mm:ss AM/PM
+  const formatDateTime = (iso) => {
+    const d = new Date(iso);
+    const pad = (n) => String(n).padStart(2, '0');
+    const dd = pad(d.getDate());
+    const mon = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+    const yyyy = d.getFullYear();
+    let h = d.getHours();
+    const m = pad(d.getMinutes());
+    const s = pad(d.getSeconds());
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 === 0 ? 12 : h % 12;
+    return `${dd}-${mon}-${yyyy}, ${h}:${m}:${s} ${ampm}`;
   };
 
   if (loading) {
     return (
-      <main className="flex items-center justify-center">
-        <div>Loading your shifts...</div>
+      <main className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
+          <p className="mt-4 text-gray-600">Loading your shifts...</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <div className="bg-white max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      {/* Back Button */}
-      <div className="mb-6">
-        <button
-          onClick={onBack}
-          className="text-lg text-gray-500 hover:text-gray-300 font-medium inline-flex items-center transition duration-200">
-          ← Back to Dashboard
-        </button>
-      </div>
-
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900"
-            style={{ textShadow: '2px 2px 4px white' }}>My Schedule</h2>
-          <p className="text-lg text-gray-300 mt-2">View your weekly work schedule and upcoming shifts</p>
+    <main>
+      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        {/* Back */}
+        <div className="mb-6">
+          <button
+            onClick={onBack}
+            className="text-lg text-gray-600 hover:text-gray-300 font-medium inline-flex items-center transition duration-200"
+          >
+            ← Back to Dashboard
+          </button>
         </div>
-        <div className="p-2 text-white  rounded-lg transition duration-200"></div>
 
-     {shifts.length === 0 ? (
-          <div className="text-white/90 ">No shifts found.</div>
-        ) : (
-          <div className="space-y-4">
-            {shifts.map((shift) => (
-              <div key={shift._id} className="bg-white/95 rounded-lg shadow p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getShiftTypeColor(shift.shiftType)}`}>
-                      {shift.shiftType}
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-500">Assigned by: {shift.assignedBy?.name || 'Unknown'}</div>
-                </div>
+        {/* Header */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-900" style={{ textShadow: '2px 2px 4px white' }}>
+            My Schedule
+          </h2>
+          <p className="text-lg text-gray-500 mt-2">
+            View your weekly work schedule and upcoming shifts
+          </p>
+        </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-xs text-gray-500">Start</div>
-                    <div className="text-gray-700">{formatDateTime(shift.startTime)}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500">End</div>
-                    <div className="text-gray-700">{formatDateTime(shift.endTime)}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
+        {/* Filters Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+          <div className="px-6 py-4">
+            <h3 className="text-base font-semibold text-gray-900">Filters</h3>
           </div>
-        )}
-    </div>
+          <div className="px-6 pb-6 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            {/* Shift Type (system default select) */}
+            <div>
+              <label className="block text-sm text-gray-600 mb-2">Shift Type</label>
+              <select
+                value={filterShiftType}
+                onChange={(e) => setFilterShiftType(e.target.value)}
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              >
+                <option value="all">All Types</option>
+                <option value="morning">Morning</option>
+                <option value="evening">Afternoon</option>
+                <option value="night">Midnight</option>
+              </select>
+            </div>
+
+            {/* Clear Filters button */}
+            <div className="md:col-span-2 flex md:justify-start">
+              <button
+                onClick={handleClearFilters}
+                className="bg-[#2E4A8A] text-white px-4 py-2 rounded-lg shadow-md hover:bg-white hover:text-black transition duration-200 self-end"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Employees Table Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b">
+            <h3 className="text-base font-semibold text-gray-900">Employees</h3>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Shift Type
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Start Dates &amp; Time
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    End Dates &amp; Time
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Assigned By
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredShifts.map((shift) => (
+                  <tr key={shift._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {displayShiftType(shift.shiftType)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {formatDateTime(shift.startTime)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {formatDateTime(shift.endTime)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {shift.assignedBy?.name || 'System Admin'}
+                    </td>
+                  </tr>
+                ))}
+
+                {filteredShifts.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-500">
+                      No shifts found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 };
 
