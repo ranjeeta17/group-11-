@@ -1,4 +1,3 @@
-#CI Testing
 name: Backend CI
 
 on:
