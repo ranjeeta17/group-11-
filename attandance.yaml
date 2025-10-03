@@ -1,8 +1,27 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Simple CloudFormation template to create an S3 bucket
+Description: Deploy a simple web server on EC2
 
 Resources:
-  MyS3Bucket:
-    Type: 'AWS::S3::Bucket'
+  WebServerSG:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      BucketName: !Sub 'attandancemangement-S3'
+      GroupDescription: Allow HTTP and SSH
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      KeyName: ranjeeta   # replace with your actual Key Pair name
+      ImageId: ami-0279a86684f669718  # update for your region!
+      SecurityGroups:
+        - !Ref WebServerSG
+      
