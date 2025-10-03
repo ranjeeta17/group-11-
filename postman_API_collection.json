@@ -1,0 +1,1279 @@
+{
+	"info": {
+		"_postman_id": "dbb7df57-932a-42b7-8ed1-432af7b2b371",
+		"name": "Attendance System API – Postman Collection",
+		"description": "Generated on 2025-10-02T02:31:53.754904Z",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28644516"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Validate Admin Key (public)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"adminKey\": \"ADMIN-SECRET-2024\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/validate-admin-key",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"validate-admin-key"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register User (public)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Jane Employee\",\n  \"email\": \"jane.employee@example.com\",\n  \"password\": \"Passw0rd!\",\n  \"department\": \"HR\",\n  \"employeeId\": \"E1002\",\n  \"role\": \"employee\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"pm.test(\"Login 200\", function(){ pm.response.to.have.status(200); });",
+									"var json = pm.response.json();",
+									"pm.collectionVariables.set(\"adminToken\", json.token);",
+									"pm.collectionVariables.set(\"adminUserId\", json.user && (json.user.id || json.user._id));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Uses default admin seeded by server: admin@company.com / admin123"
+					},
+					"response": []
+				},
+				{
+					"name": "Employee Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"pm.test(\"Login 200\", function(){ pm.response.to.have.status(200); });",
+									"var json = pm.response.json();",
+									"pm.collectionVariables.set(\"employeeToken\", json.token);",
+									"pm.collectionVariables.set(\"employeeUserId\", json.user && (json.user.id || json.user._id));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{employeeEmail}}\",\n  \"password\": \"{{employeePassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Logs in as the default employee to test employee-only endpoints"
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employeeToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employeeToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "List Employees (filters optional)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/employees?department=&role=&isActive=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"employees"
+							],
+							"query": [
+								{
+									"key": "department",
+									"value": ""
+								},
+								{
+									"key": "role",
+									"value": ""
+								},
+								{
+									"key": "isActive",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Users: List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin: Present Today Count",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/time-records/admin/present-today",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"time-records",
+								"admin",
+								"present-today"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Users: Update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"AdminUpdated\",\n  \"email\": \"admin.updated.employee@example.com\",\n  \"password\": \"Passw0rd!\",\n  \"department\": \"Ops\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/users/{{createdEmployeeId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users",
+								"{{createdEmployeeId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin: List Time Records",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/time-records/admin",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"time-records",
+								"admin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Employee",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"pm.test(\"Created 201\", function(){ pm.response.to.have.status(201); });",
+									"var json = pm.response.json();",
+									"if (json && json.employee) { pm.collectionVariables.set(\"createdEmployeeId\", json.employee._id || json.employee.id); }"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Employee\",\n  \"email\": \"new.employee@example.com\",\n  \"password\": \"Passw0rd!\",\n  \"department\": \"Finance\",\n  \"employeeId\": \"E2001\",\n  \"role\": \"employee\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/employees",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"employees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Employee Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"isActive\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/employees/{{createdEmployeeId}}/toggle-status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"employees",
+								"{{createdEmployeeId}}",
+								"toggle-status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Users: Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users/{{createdEmployeeId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users",
+								"{{createdEmployeeId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Employee",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Employee\",\n  \"email\": \"updated.employee@example.com\",\n  \"password\": \"Passw0rd!\",\n  \"department\": \"Finance\",\n  \"employeeId\": \"E2001\",\n  \"role\": \"employee\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/employees/{{createdEmployeeId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"employees",
+								"{{createdEmployeeId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Analytics: Employee Summary",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/employee/{{employeeUserId}}/summary",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"employee",
+								"{{employeeUserId}}",
+								"summary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Analytics: Company Summary",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/summary",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"summary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Employee",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/employees/{{createdEmployeeId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"employees",
+								"{{createdEmployeeId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "time record",
+			"item": [
+				{
+					"name": "Check In",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employeeToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/time-records/check-in",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"time-records",
+								"check-in"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "My Time Records",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employeeToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/time-records/mine",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"time-records",
+								"mine"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check Out",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employeeToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/time-records/check-out",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"time-records",
+								"check-out"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Leaves",
+			"item": [
+				{
+					"name": "Create Leave Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"pm.test(\"Created 201\", function(){ pm.response.to.have.status(201); });",
+									"var json = pm.response.json();",
+									"if (json && json.leave) { pm.collectionVariables.set(\"leaveId\", json.leave._id || json.leave.id); }"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employeeToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"leaveType\": \"annual\",\n  \"startDate\": \"{{nextMonday}}\",\n  \"endDate\": \"{{nextWednesday}}\",\n  \"reason\": \"Family event\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/leaves",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"leaves"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "My Leave Requests",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employeeToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/leaves/my-leaves?page=1&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"leaves",
+								"my-leaves"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Leave Balance",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employeeToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/leaves/balance",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"leaves",
+								"balance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel My Leave (pending only)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employeeToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/leaves/{{leaveId}}/cancel",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"leaves",
+								"{{leaveId}}",
+								"cancel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin: Update Leave Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"approved\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/leaves/admin/{{leaveId}}/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"leaves",
+								"admin",
+								"{{leaveId}}",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin: Get All Leaves",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/leaves/admin/leaves?page=1&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"leaves",
+								"admin",
+								"leaves"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin: Leave Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/leaves/admin/statistics?year={{statsYear}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"leaves",
+								"admin",
+								"statistics"
+							],
+							"query": [
+								{
+									"key": "year",
+									"value": "{{statsYear}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Shifts",
+			"item": [
+				{
+					"name": "My Shifts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employeeToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/shifts/my",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shifts",
+								"my"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update My Shift Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{employeeToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"accepted\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shifts/{{shiftId}}/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shifts",
+								"{{shiftId}}",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin: List All Shifts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/shifts/all",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shifts",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin: Assign Shift",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"pm.test(\"Assigned or OK\", function(){ pm.expect([200,201]).to.include(pm.response.code); });",
+									"try { var json = pm.response.json(); if (json && (json._id || json.id || json.shiftId)) {",
+									"  pm.collectionVariables.set(\"shiftId\", json._id || json.id || json.shiftId);",
+									"}} catch(e) {}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"employeeId\": \"{{employeeUserId}}\",\n  \"title\": \"Front Desk\",\n  \"startAt\": \"2025-10-06T09:00:00.000Z\",\n  \"endAt\": \"2025-10-06T17:00:00.000Z\",\n  \"location\": \"HQ\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shifts/assign",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shifts",
+								"assign"
+							]
+						},
+						"description": "Adjust fields to match your controllers/shiftController.js schema."
+					},
+					"response": []
+				},
+				{
+					"name": "Admin: Update Shift",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Front Desk (Updated)\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shifts/{{shiftId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shifts",
+								"{{shiftId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin: Delete Shift",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/shifts/{{shiftId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shifts",
+								"{{shiftId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin: Shift Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/shifts/stats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shifts",
+								"stats"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5001",
+			"type": "string"
+		},
+		{
+			"key": "adminEmail",
+			"value": "admin@company.com",
+			"type": "string"
+		},
+		{
+			"key": "adminPassword",
+			"value": "admin123",
+			"type": "string"
+		},
+		{
+			"key": "employeeEmail",
+			"value": "employee@company.com",
+			"type": "string"
+		},
+		{
+			"key": "employeePassword",
+			"value": "emp123",
+			"type": "string"
+		},
+		{
+			"key": "statsYear",
+			"value": "2025",
+			"type": "string"
+		},
+		{
+			"key": "nextMonday",
+			"value": "2025-10-06",
+			"type": "string"
+		},
+		{
+			"key": "nextWednesday",
+			"value": "2025-10-08",
+			"type": "string"
+		},
+		{
+			"key": "adminToken",
+			"value": ""
+		},
+		{
+			"key": "adminUserId",
+			"value": ""
+		},
+		{
+			"key": "employeeToken",
+			"value": ""
+		},
+		{
+			"key": "employeeUserId",
+			"value": ""
+		},
+		{
+			"key": "leaveId",
+			"value": ""
+		},
+		{
+			"key": "createdEmployeeId",
+			"value": ""
+		}
+	]
+}
