@@ -1,17 +1,23 @@
+#CI Testing
 name: Backend CI
 
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   test:
     name: Run Tests
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [22]  # keep your version; switch to 20 LTS if you hit tooling issues
+        node-version: [22]  # use 20 if any tooling has issues
 
     steps:
       - name: Checkout Code
@@ -26,16 +32,13 @@ jobs:
             backend/package-lock.json
             frontend/package-lock.json
 
-      - name: Stop pm2 (if running)
-        run: pm2 stop all || true
-
       # --- Backend ---
-      - name: Install Backend Dependencies (npm)
+      - name: Install Backend Dependencies
         working-directory: ./backend
         run: npm ci
 
       # --- Frontend ---
-      - name: Install Frontend Dependencies (npm)
+      - name: Install Frontend Dependencies
         working-directory: ./frontend
         run: npm ci
 
@@ -55,13 +58,8 @@ jobs:
           CI: true
         run: npm test -- --ci
 
-      # --- Runtime env / pm2 ---
-      - name: Write .env for backend runtime
-        working-directory: ./backend
-        run: |
-          printf "%s\n" "${{ secrets.PROD }}" > .env
-
-      - name: Start pm2 apps
-        run: |
-          pm2 start all || true
-          pm2 restart all || true
+      # If your tests need an .env file, uncomment below and set a secret like PROD
+      # - name: Write .env for backend runtime (optional)
+      #   working-directory: ./backend
+      #   run: |
+      #     printf "%s\n" "${{ secrets.PROD }}" > .env
