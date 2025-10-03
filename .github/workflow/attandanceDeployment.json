@@ -1,0 +1,42 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Deploy a simple web server on EC2",
+  "Resources": {
+    "WebServerSG": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Allow HTTP and SSH",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22,
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    "WebServerInstance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": "t3.micro",
+        "KeyName": "ranjeeta",
+        "ImageId": "ami-08c40ec9ead489470",
+        "SecurityGroupIds": [
+          { "Ref": "WebServerSG" }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Sub": "#!/bin/bash\nsudo apt-get update -y\nsudo apt-get install -y apache2\nsudo systemctl start apache2\necho \"Hello from CloudFormation EC2\" > /var/www/html/index.html"
+          }
+        }
+      }
+    }
+  }
+}
